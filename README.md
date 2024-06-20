@@ -63,3 +63,7 @@
 3. 예약 내역 ( History ) 조회 기능
 4. 쿠폰 및 포인트 기능 관련 기획&개발
 ## ERD
+![ReservationERD](./image/ReservationERD.jpg)
+ERD URL : https://aquerytool.com/aquerymain/index/?rurl=409e7d0a-ca34-451f-9a0b-9926500455d1
+</br>
+Read-Only PW : 374y3b

@@ -24,4 +24,9 @@ public class BaseResponse<T> {
     this.message = SUCCESS.getMessage(); // 성공 메세지
     this.result = result; // JSON 데이터
   }
+  // 예외발생 시
+  public BaseResponse(BaseException e) {
+    this.code=e.getCode();
+    this.message=e.getMessage();
+  }
 }

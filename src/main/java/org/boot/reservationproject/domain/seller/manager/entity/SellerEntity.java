@@ -6,21 +6,27 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.boot.reservationproject.global.BaseEntity;
 
 @Entity
 @Table(name = "seller")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SellerEntity extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
   private Long id;
 
-  @Column(name = "ep_email",nullable = false, length = 300)
-  private String epEmail; // 대표 이메일
+  @Column(name = "cp_email",nullable = false, length = 300)
+  private String cpEmail; // 회사 이메일
 
-  @Column(name = "ep_password",nullable = false, length = 60)
-  private String epPassword; // 패스워드
+  @Column(name = "cp_password",nullable = false, length = 60)
+  private String cpPassword; // 패스워드
 
   @Column(name = "ep_phone_number",nullable = false, length = 11)
   private String epPhoneNumber; // 대표자 전화번호
@@ -36,8 +42,4 @@ public class SellerEntity extends BaseEntity {
 
   @Column(name = "cp_location",nullable = false, length = 100)
   private String cpLocation; // 법인 주소
-
-  @Column(name = "cp_account",nullable = false, length = 20)
-  private String cpAccount; // 법인 계좌
-
 }

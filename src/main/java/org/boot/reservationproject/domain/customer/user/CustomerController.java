@@ -1,7 +1,9 @@
 package org.boot.reservationproject.domain.customer.user;
 
 import lombok.RequiredArgsConstructor;
+import org.boot.reservationproject.domain.customer.user.dto.request.SignInRequest;
 import org.boot.reservationproject.domain.customer.user.dto.request.SignUpRequest;
+import org.boot.reservationproject.domain.customer.user.dto.response.SignInResponse;
 import org.boot.reservationproject.domain.customer.user.dto.response.SignUpResponse;
 import org.boot.reservationproject.domain.customer.user.service.CustomerService;
 import org.boot.reservationproject.global.error.BaseResponse;
@@ -23,6 +25,16 @@ public class CustomerController {
   @PostMapping("/registration")
   public ResponseEntity<BaseResponse<SignUpResponse>> signUp(@RequestBody SignUpRequest request){
     SignUpResponse response = customerService.signUp(request);
+    return ResponseEntity.ok(new BaseResponse<>(response));
+  }
+
+  /*
+   * 로그인
+   * 이메일, 비밀번호 입력
+   */
+  @PostMapping("/auth-email")
+  public ResponseEntity<BaseResponse<SignInResponse>> signIn(@RequestBody SignInRequest request){
+    SignInResponse response = customerService.signIn(request);
     return ResponseEntity.ok(new BaseResponse<>(response));
   }
 }

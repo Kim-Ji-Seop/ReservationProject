@@ -1,5 +1,8 @@
 package org.boot.reservationproject.global.error;
 
+import static org.boot.reservationproject.global.error.ErrorCode.INTERNAL_SERVER_ERROR;
+
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

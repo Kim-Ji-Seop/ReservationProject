@@ -2,21 +2,29 @@ package org.boot.reservationproject.domain.seller.manager.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.Collection;
+import java.util.Collections;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.boot.reservationproject.global.BaseEntity;
+import org.boot.reservationproject.global.Role;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "seller")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SellerEntity extends BaseEntity {
+public class SellerEntity extends BaseEntity implements UserDetails {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
@@ -42,4 +50,24 @@ public class SellerEntity extends BaseEntity {
 
   @Column(name = "cp_location",nullable = false, length = 100)
   private String cpLocation; // 법인 주소
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "role", nullable = false, length = 45)
+  private Role role;
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_"+role.getKey());
+    return Collections.singletonList(authority);
+  }
+
+  @Override
+  public String getPassword() {
+    return this.cpPassword;
+  }
+
+  @Override
+  public String getUsername() {
+    return this.cpEmail;
+  }
 }

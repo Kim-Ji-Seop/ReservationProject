@@ -2,10 +2,11 @@ package org.boot.reservationproject.domain.seller.manager.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.boot.reservationproject.domain.seller.manager.dto.request.ManagerSignUpRequest;
-import org.boot.reservationproject.domain.seller.manager.dto.response.ManagerSignUpResponse;
+import org.boot.reservationproject.domain.seller.manager.dto.request.SellerSignUpRequest;
+import org.boot.reservationproject.domain.seller.manager.dto.response.SellerSignUpResponse;
 import org.boot.reservationproject.domain.seller.manager.entity.SellerEntity;
-import org.boot.reservationproject.domain.seller.manager.repository.ManagerRepository;
+import org.boot.reservationproject.domain.seller.manager.repository.SellerRepository;
+import org.boot.reservationproject.global.Role;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,10 +15,10 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ManagerService {
+public class SellerService {
   private final PasswordEncoder passwordEncoder;
-  private final ManagerRepository managerRepository;
-  public ManagerSignUpResponse signUp(ManagerSignUpRequest request) {
+  private final SellerRepository sellerRepository;
+  public SellerSignUpResponse signUp(SellerSignUpRequest request) {
     try{
       if(request == null
           || request.cpEmail().isEmpty()
@@ -48,10 +49,11 @@ public class ManagerService {
           .epCode(request.epCode())
           .cpName(request.cpName())
           .cpLocation(request.cpLocation())
+          .role(Role.SELLER)
           .build();
-      managerRepository.save(newSeller);
+      sellerRepository.save(newSeller);
       // 3. Response
-      return new ManagerSignUpResponse(true);
+      return new SellerSignUpResponse(true);
     }catch (BaseException e){
       log.error("SignUp failed: ", e);
       throw e;

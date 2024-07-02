@@ -8,6 +8,7 @@ import org.boot.reservationproject.domain.customer.dto.response.SignInResponse;
 import org.boot.reservationproject.domain.customer.entity.CustomerEntity;
 import org.boot.reservationproject.domain.customer.entity.CustomerEntity.Gender;
 import org.boot.reservationproject.domain.customer.repository.CustomerRepository;
+import org.boot.reservationproject.domain.seller.dto.request.SellerSignUpRequest;
 import org.boot.reservationproject.global.CustomUserDetailService;
 import org.boot.reservationproject.global.Role;
 import org.boot.reservationproject.global.error.BaseException;
@@ -38,12 +39,8 @@ public class CustomerService {
       }
 
       // 1. 비밀번호 암호화
-      String encodedPassword;
-      try {
-        encodedPassword = passwordEncoder.encode(request.password());
-      } catch (Exception e) {
-        throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Password encoding failed", e);
-      }
+      String encodedPassword = encodingPassword(request);
+
       log.info("SignUp Method => before pw : {} | after store pw : {}"
           , request.password()
           , encodedPassword);
@@ -96,5 +93,13 @@ public class CustomerService {
 
   public boolean checkPassword(String rawPassword, String encodedPassword) {
     return passwordEncoder.matches(rawPassword, encodedPassword);
+  }
+
+  public String encodingPassword(SignUpRequest request){
+    try {
+      return passwordEncoder.encode(request.password());
+    } catch (Exception e) {
+      throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Password encoding failed", e);
+    }
   }
 }

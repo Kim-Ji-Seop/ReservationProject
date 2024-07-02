@@ -1,7 +1,9 @@
 package org.boot.reservationproject.domain.seller;
 
 import lombok.RequiredArgsConstructor;
+import org.boot.reservationproject.domain.seller.dto.request.SellerSignInRequest;
 import org.boot.reservationproject.domain.seller.dto.request.SellerSignUpRequest;
+import org.boot.reservationproject.domain.seller.dto.response.SellerSignInResponse;
 import org.boot.reservationproject.domain.seller.dto.response.SellerSignUpResponse;
 import org.boot.reservationproject.domain.seller.service.SellerService;
 import org.boot.reservationproject.global.error.BaseResponse;
@@ -24,6 +26,12 @@ public class SellerController {
   public ResponseEntity<BaseResponse<SellerSignUpResponse>> signUp(
                                                     @RequestBody SellerSignUpRequest request){
     SellerSignUpResponse response = sellerService.signUp(request);
+    return ResponseEntity.ok(new BaseResponse<>(response));
+  }
+
+  @PostMapping("/auth-email")
+  public ResponseEntity<BaseResponse<SellerSignInResponse>> signIn(@RequestBody SellerSignInRequest request){
+    SellerSignInResponse response = sellerService.signIn(request);
     return ResponseEntity.ok(new BaseResponse<>(response));
   }
 }

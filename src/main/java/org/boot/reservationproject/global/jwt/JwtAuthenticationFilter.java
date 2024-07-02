@@ -30,7 +30,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     boolean shouldNotFilter = (
             pathMatcher.match("/api/customers/registration", path) && request.getMethod().equals("POST") || // 회원가입 > 구매자
             pathMatcher.match("/api/sellers/registration", path) && request.getMethod().equals("POST") || // 회원가입 > 판매자
-            pathMatcher.match("/api/customers/auth-email", path) && request.getMethod().equals("POST") // 이메일 로그인 > 구매자
+            pathMatcher.match("/api/customers/auth-email", path) && request.getMethod().equals("POST") || // 이메일 로그인 > 구매자
+            pathMatcher.match("/api/sellers/auth-email", path) && request.getMethod().equals("POST") // 이메일 로그인 > 판매자
     );
     return shouldNotFilter;
   }

@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.boot.reservationproject.global.BaseEntity;
+import org.boot.reservationproject.global.CustomUserDetails;
 import org.boot.reservationproject.global.Gender;
 import org.boot.reservationproject.global.Role;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,7 +28,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class CustomerEntity extends BaseEntity implements UserDetails {
+public class CustomerEntity extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
@@ -59,20 +60,8 @@ public class CustomerEntity extends BaseEntity implements UserDetails {
   @Column(name = "nickname", nullable = false, length = 20, unique = true)
   private String nickname;
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_"+role.getKey());
-    return Collections.singletonList(authority);
-  }
-
-  @Override
-  public String getPassword() {
-    return this.password;
-  }
-
-  @Override
-  public String getUsername() {
-    return this.email;
+  public CustomUserDetails toUserDetails() {
+    return new CustomUserDetails(email, password, role);
   }
 
 }

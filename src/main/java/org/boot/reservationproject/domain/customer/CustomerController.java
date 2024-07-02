@@ -32,7 +32,7 @@ public class CustomerController {
    * 이메일, 비밀번호 입력
    */
   @PostMapping("/auth-email")
-  public ResponseEntity<BaseResponse<SignInResponse>> signIn(@RequestBody SignInRequest request){
+  public ResponseEntity<BaseResponse<SignInResponse>> signIn(@Valid @RequestBody SignInRequest request){
     SignInResponse response = customerService.signIn(request);
     return ResponseEntity.ok(new BaseResponse<>(response));
   }

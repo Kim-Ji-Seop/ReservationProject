@@ -29,17 +29,6 @@ public class SellerService {
   private final JwtTokenProvider jwtTokenProvider;
   public void signUp(SellerSignUpRequest request) {
     try{
-      if(request == null
-          || request.cpEmail().isEmpty()
-          || request.password().isEmpty()
-          || request.epPhoneNumber().isEmpty()
-          || request.epName().isEmpty()
-          || request.epCode().isEmpty()
-          || request.cpName().isEmpty()
-          || request.cpLocation().isEmpty()){
-        throw new BaseException(ErrorCode.BAD_REQUEST); // 빈 값
-      }
-
       // 1. 비밀번호 암호화
       String encodedPassword = encodingPassword(request);
 
@@ -71,22 +60,25 @@ public class SellerService {
   }
 
   public SellerSignInResponse signIn(SellerSignInRequest request) {
-    if(request == null ||
-        request.cpEmail().isEmpty() ||
-        request.cpPassword().isEmpty()){
-      throw new BaseException(ErrorCode.BAD_REQUEST); // 빈 값
-    }
-    UserDetails userDetails = customUserDetailService
-        .loadUserByUsername(request.cpEmail());
+
+    UserDetails userDetails =
+        customUserDetailService.loadUserByUsername(request.cpEmail());
     if(!checkPassword(request.cpPassword(), userDetails.getPassword())){ // 비밀번호 비교
       throw new BaseException(ErrorCode.BAD_REQUEST);
     }
-    //List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(customer.getRole().toString()));
-    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    Authentication authentication =
+        new UsernamePasswordAuthenticationToken(
+            userDetails,
+            null,
+            userDetails.getAuthorities()
+        );
     TokenDto token = jwtTokenProvider.generateToken(authentication);
 
-    SellerEntity seller = (SellerEntity) userDetails;
-    log.info("유저 권한 : {}", seller.getAuthorities().toString());
+    SellerEntity seller =
+        sellerRepository.findByCpEmail(request.cpEmail())
+            .orElseThrow(
+                () -> new BaseException(ErrorCode.USER_NOT_FOUND)
+            );
     return SellerSignInResponse.builder()
         .epName(seller.getEpName())
         .cpName(seller.getCpName())

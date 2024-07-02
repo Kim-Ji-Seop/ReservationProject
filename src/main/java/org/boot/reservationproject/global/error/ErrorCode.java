@@ -18,7 +18,8 @@ public enum ErrorCode {
   TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, 401, "JWT Token이 존재하지 않습니다."),
 
   // Validation
-  INVALID_VALUE(HttpStatus.BAD_REQUEST, 400, "잘못된 입력값입니다.");
+  INVALID_VALUE(HttpStatus.BAD_REQUEST, 400, "잘못된 입력값입니다."),
+  USER_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR,500,"유저를 찾지 못했습니다.");
 
 
   private final HttpStatus httpStatus;

@@ -30,12 +30,6 @@ public class CustomerService {
   private final JwtTokenProvider jwtTokenProvider;
   public void signUp(SignUpRequest request) {
     try{
-      if(request == null
-          || request.email().isEmpty()
-          || request.password().isEmpty()
-          || request.nickname().isEmpty()){
-        throw new BaseException(ErrorCode.BAD_REQUEST); // 빈 값
-      }
 
       // 1. 비밀번호 암호화
       String encodedPassword = encodingPassword(request);
@@ -68,22 +62,26 @@ public class CustomerService {
   }
 
   public SignInResponse signIn(SignInRequest request) {
-    if(request == null ||
-        request.email().isEmpty() ||
-        request.password().isEmpty()){
-      throw new BaseException(ErrorCode.BAD_REQUEST); // 빈 값
-    }
-    UserDetails userDetails = customUserDetailService
-                                              .loadUserByUsername(request.email());
+
+    UserDetails userDetails =
+        customUserDetailService.loadUserByUsername(request.email());
+
     if(!checkPassword(request.password(), userDetails.getPassword())){ // 비밀번호 비교
       throw new BaseException(ErrorCode.BAD_REQUEST);
     }
-    //List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(customer.getRole().toString()));
-    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    Authentication authentication =
+        new UsernamePasswordAuthenticationToken(
+            userDetails,
+            null,
+            userDetails.getAuthorities()
+        );
     TokenDto token = jwtTokenProvider.generateToken(authentication);
 
-    CustomerEntity customer = (CustomerEntity) userDetails;
-    log.info("유저 권한 : {}", customer.getAuthorities().toString());
+    CustomerEntity customer =
+        customerRepository.findByEmail(request.email())
+            .orElseThrow(
+                () -> new BaseException(ErrorCode.USER_NOT_FOUND)
+            );
     return SignInResponse.builder()
         .nickname(customer.getNickname())
         .tokenDto(token)

@@ -2,11 +2,9 @@ package org.boot.reservationproject.domain.seller.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.boot.reservationproject.domain.customer.entity.CustomerEntity;
 import org.boot.reservationproject.domain.seller.dto.request.SellerSignInRequest;
 import org.boot.reservationproject.domain.seller.dto.request.SellerSignUpRequest;
 import org.boot.reservationproject.domain.seller.dto.response.SellerSignInResponse;
-import org.boot.reservationproject.domain.seller.dto.response.SellerSignUpResponse;
 import org.boot.reservationproject.domain.seller.entity.SellerEntity;
 import org.boot.reservationproject.domain.seller.repository.SellerRepository;
 import org.boot.reservationproject.global.CustomUserDetailService;
@@ -29,7 +27,7 @@ public class SellerService {
   private final SellerRepository sellerRepository;
   private final CustomUserDetailService customUserDetailService;
   private final JwtTokenProvider jwtTokenProvider;
-  public SellerSignUpResponse signUp(SellerSignUpRequest request) {
+  public void signUp(SellerSignUpRequest request) {
     try{
       if(request == null
           || request.cpEmail().isEmpty()
@@ -64,9 +62,9 @@ public class SellerService {
           .cpLocation(request.cpLocation())
           .role(Role.SELLER)
           .build();
-      sellerRepository.save(newSeller);
-      // 3. Response
-      return new SellerSignUpResponse(true);
+      SellerEntity sellerInDB = sellerRepository.save(newSeller);
+      log.info("SignUp Success? => Seller PK : {}"
+          , sellerInDB.getId());
     }catch (BaseException e){
       log.error("SignUp failed: ", e);
       throw e;

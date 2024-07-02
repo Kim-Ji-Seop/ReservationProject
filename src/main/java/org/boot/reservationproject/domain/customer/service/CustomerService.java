@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.customer.dto.request.SignInRequest;
 import org.boot.reservationproject.domain.customer.dto.request.SignUpRequest;
 import org.boot.reservationproject.domain.customer.dto.response.SignInResponse;
-import org.boot.reservationproject.domain.customer.dto.response.SignUpResponse;
 import org.boot.reservationproject.domain.customer.entity.CustomerEntity;
 import org.boot.reservationproject.domain.customer.entity.CustomerEntity.Gender;
 import org.boot.reservationproject.domain.customer.repository.CustomerRepository;
@@ -29,7 +28,7 @@ public class CustomerService {
   private final PasswordEncoder passwordEncoder;
   private final CustomUserDetailService customUserDetailService;
   private final JwtTokenProvider jwtTokenProvider;
-  public SignUpResponse signUp(SignUpRequest request) {
+  public void signUp(SignUpRequest request) {
     try{
       if(request == null
           || request.email().isEmpty()
@@ -59,9 +58,9 @@ public class CustomerService {
           .name("")
           .nickname(request.nickname())
           .build();
-      customerRepository.save(newCustomer);
-      // 3. Response
-      return new SignUpResponse(true);
+      CustomerEntity customerInDB = customerRepository.save(newCustomer);
+      log.info("SignUp Success? => Customer PK : {}"
+          , customerInDB.getId());
     }catch (BaseException e){
       log.error("SignUp failed: ", e);
       throw e;

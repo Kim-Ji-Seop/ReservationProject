@@ -1,6 +1,9 @@
 package org.boot.reservationproject.global;
 
 import lombok.RequiredArgsConstructor;
+import org.boot.reservationproject.global.jwt.JwtAuthenticationFilter;
+import org.boot.reservationproject.global.jwt.JwtTokenProvider;
+import org.boot.reservationproject.global.redis.RedisDao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,6 +18,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+  private final RedisDao redisDao;
+  private final JwtTokenProvider jwtTokenProvider;
   @Bean
   public PasswordEncoder passwordEncoder(){
     return new BCryptPasswordEncoder(); // 단방향 해쉬
@@ -26,7 +31,12 @@ public class SecurityConfig {
         .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(sessionManagement ->
             sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()); // 모든 요청 허용
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/api/customers/**"
+                            ,"/api/sellers/**").permitAll()
+            .anyRequest().authenticated())
+        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider,redisDao)
+            ,UsernamePasswordAuthenticationFilter.class);
     return httpSecurity.build();
   }
 }

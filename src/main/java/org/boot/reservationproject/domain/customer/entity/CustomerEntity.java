@@ -1,4 +1,4 @@
-package org.boot.reservationproject.domain.customer.user.entity;
+package org.boot.reservationproject.domain.customer.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,11 +8,25 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.Collection;
+import java.util.Collections;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.boot.reservationproject.global.BaseEntity;
+import org.boot.reservationproject.global.Role;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "customer")
-public class CustomerEntity extends BaseEntity {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+public class CustomerEntity extends BaseEntity implements UserDetails {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
@@ -31,6 +45,10 @@ public class CustomerEntity extends BaseEntity {
   private String birthday;
 
   @Enumerated(EnumType.STRING)
+  @Column(name = "role", nullable = false, length = 20)
+  private Role role;
+
+  @Enumerated(EnumType.STRING)
   @Column(name = "gender", nullable = false)
   private Gender gender;
 
@@ -39,6 +57,22 @@ public class CustomerEntity extends BaseEntity {
 
   @Column(name = "nickname", nullable = false, length = 20, unique = true)
   private String nickname;
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_"+role.getKey());
+    return Collections.singletonList(authority);
+  }
+
+  @Override
+  public String getPassword() {
+    return this.password;
+  }
+
+  @Override
+  public String getUsername() {
+    return this.email;
+  }
 
   public enum Gender {
     MALE, FEMALE

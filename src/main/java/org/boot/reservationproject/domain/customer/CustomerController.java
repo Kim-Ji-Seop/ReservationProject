@@ -1,10 +1,10 @@
 package org.boot.reservationproject.domain.customer;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.boot.reservationproject.domain.customer.dto.request.SignInRequest;
 import org.boot.reservationproject.domain.customer.dto.request.SignUpRequest;
 import org.boot.reservationproject.domain.customer.dto.response.SignInResponse;
-import org.boot.reservationproject.domain.customer.dto.response.SignUpResponse;
 import org.boot.reservationproject.domain.customer.service.CustomerService;
 import org.boot.reservationproject.global.error.BaseResponse;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +23,8 @@ public class CustomerController {
    * 이메일, 비밀번호, 전화번호, 생년월일, 성별, 닉네임 입력
    */
   @PostMapping("/registration")
-  public ResponseEntity<BaseResponse<SignUpResponse>> signUp(@RequestBody SignUpRequest request){
-    SignUpResponse response = customerService.signUp(request);
-    return ResponseEntity.ok(new BaseResponse<>(response));
+  public void signUp(@Valid @RequestBody SignUpRequest request){
+    customerService.signUp(request);
   }
 
   /*
@@ -33,7 +32,7 @@ public class CustomerController {
    * 이메일, 비밀번호 입력
    */
   @PostMapping("/auth-email")
-  public ResponseEntity<BaseResponse<SignInResponse>> signIn(@RequestBody SignInRequest request){
+  public ResponseEntity<BaseResponse<SignInResponse>> signIn(@Valid @RequestBody SignInRequest request){
     SignInResponse response = customerService.signIn(request);
     return ResponseEntity.ok(new BaseResponse<>(response));
   }

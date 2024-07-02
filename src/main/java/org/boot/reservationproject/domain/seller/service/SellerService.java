@@ -2,11 +2,9 @@ package org.boot.reservationproject.domain.seller.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.boot.reservationproject.domain.customer.entity.CustomerEntity;
 import org.boot.reservationproject.domain.seller.dto.request.SellerSignInRequest;
 import org.boot.reservationproject.domain.seller.dto.request.SellerSignUpRequest;
 import org.boot.reservationproject.domain.seller.dto.response.SellerSignInResponse;
-import org.boot.reservationproject.domain.seller.dto.response.SellerSignUpResponse;
 import org.boot.reservationproject.domain.seller.entity.SellerEntity;
 import org.boot.reservationproject.domain.seller.repository.SellerRepository;
 import org.boot.reservationproject.global.CustomUserDetailService;
@@ -29,28 +27,15 @@ public class SellerService {
   private final SellerRepository sellerRepository;
   private final CustomUserDetailService customUserDetailService;
   private final JwtTokenProvider jwtTokenProvider;
-  public SellerSignUpResponse signUp(SellerSignUpRequest request) {
+  public void signUp(SellerSignUpRequest request) {
     try{
-      if(request == null
-          || request.cpEmail().isEmpty()
-          || request.password().isEmpty()
-          || request.epPhoneNumber().isEmpty()
-          || request.epName().isEmpty()
-          || request.epCode().isEmpty()
-          || request.cpName().isEmpty()
-          || request.cpLocation().isEmpty()){
-        throw new BaseException(ErrorCode.BAD_REQUEST); // 빈 값
-      }
-
       // 1. 비밀번호 암호화
-      String encodedPassword;
-      try {
-        encodedPassword = passwordEncoder.encode(request.password());
-      } catch (Exception e) {
-        throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Password encoding failed", e);
-      }
-      log.info("SignUp Method => before pw : "+request.password()
-          + " | " + "after store pw :" + encodedPassword);
+      String encodedPassword = encodingPassword(request);
+
+      log.info("SignUp Method => before pw : {} | after store pw : {}"
+          , request.password()
+          , encodedPassword);
+
       // 2. 데이터 삽입
       SellerEntity newSeller = SellerEntity.builder()
           .cpEmail(request.cpEmail())
@@ -62,9 +47,9 @@ public class SellerService {
           .cpLocation(request.cpLocation())
           .role(Role.SELLER)
           .build();
-      sellerRepository.save(newSeller);
-      // 3. Response
-      return new SellerSignUpResponse(true);
+      SellerEntity sellerInDB = sellerRepository.save(newSeller);
+      log.info("SignUp Success? => Seller PK : {}"
+          , sellerInDB.getId());
     }catch (BaseException e){
       log.error("SignUp failed: ", e);
       throw e;
@@ -75,22 +60,25 @@ public class SellerService {
   }
 
   public SellerSignInResponse signIn(SellerSignInRequest request) {
-    if(request == null ||
-        request.cpEmail().isEmpty() ||
-        request.cpPassword().isEmpty()){
-      throw new BaseException(ErrorCode.BAD_REQUEST); // 빈 값
-    }
-    UserDetails userDetails = customUserDetailService
-        .loadUserByUsername(request.cpEmail());
+
+    UserDetails userDetails =
+        customUserDetailService.loadUserByUsername(request.cpEmail());
     if(!checkPassword(request.cpPassword(), userDetails.getPassword())){ // 비밀번호 비교
       throw new BaseException(ErrorCode.BAD_REQUEST);
     }
-    //List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(customer.getRole().toString()));
-    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    Authentication authentication =
+        new UsernamePasswordAuthenticationToken(
+            userDetails,
+            null,
+            userDetails.getAuthorities()
+        );
     TokenDto token = jwtTokenProvider.generateToken(authentication);
 
-    SellerEntity seller = (SellerEntity) userDetails;
-    log.info("유저 권한 : "+ seller.getAuthorities().toString());
+    SellerEntity seller =
+        sellerRepository.findByCpEmail(request.cpEmail())
+            .orElseThrow(
+                () -> new BaseException(ErrorCode.USER_NOT_FOUND)
+            );
     return SellerSignInResponse.builder()
         .epName(seller.getEpName())
         .cpName(seller.getCpName())
@@ -99,5 +87,13 @@ public class SellerService {
   }
   public boolean checkPassword(String rawPassword, String encodedPassword) {
     return passwordEncoder.matches(rawPassword, encodedPassword);
+  }
+
+  public String encodingPassword(SellerSignUpRequest request){
+    try {
+      return passwordEncoder.encode(request.password());
+    } catch (Exception e) {
+      throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Password encoding failed", e);
+    }
   }
 }

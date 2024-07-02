@@ -5,11 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.customer.dto.request.SignInRequest;
 import org.boot.reservationproject.domain.customer.dto.request.SignUpRequest;
 import org.boot.reservationproject.domain.customer.dto.response.SignInResponse;
-import org.boot.reservationproject.domain.customer.dto.response.SignUpResponse;
 import org.boot.reservationproject.domain.customer.entity.CustomerEntity;
-import org.boot.reservationproject.domain.customer.entity.CustomerEntity.Gender;
 import org.boot.reservationproject.domain.customer.repository.CustomerRepository;
 import org.boot.reservationproject.global.CustomUserDetailService;
+import org.boot.reservationproject.global.Gender;
 import org.boot.reservationproject.global.Role;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
@@ -29,24 +28,15 @@ public class CustomerService {
   private final PasswordEncoder passwordEncoder;
   private final CustomUserDetailService customUserDetailService;
   private final JwtTokenProvider jwtTokenProvider;
-  public SignUpResponse signUp(SignUpRequest request) {
+  public void signUp(SignUpRequest request) {
     try{
-      if(request == null
-          || request.email().isEmpty()
-          || request.password().isEmpty()
-          || request.nickname().isEmpty()){
-        throw new BaseException(ErrorCode.BAD_REQUEST); // 빈 값
-      }
 
       // 1. 비밀번호 암호화
-      String encodedPassword;
-      try {
-        encodedPassword = passwordEncoder.encode(request.password());
-      } catch (Exception e) {
-        throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Password encoding failed", e);
-      }
-      log.info("SignUp Method => before pw : "+request.password()
-          + " | " + "after store pw :" + encodedPassword);
+      String encodedPassword = encodingPassword(request);
+
+      log.info("SignUp Method => before pw : {} | after store pw : {}"
+          , request.password()
+          , encodedPassword);
       // 2. 데이터 삽입
       CustomerEntity newCustomer = CustomerEntity.builder()
           .email(request.email())
@@ -54,13 +44,13 @@ public class CustomerService {
           .phoneNumber(request.phoneNumber())
           .birthday(request.birthday())
           .role(Role.CUSTOMER)
-          .gender(request.gender().equals("MALE") ? Gender.MALE : Gender.FEMALE)
+          .gender(Gender.valueOf(request.gender().name()))
           .name("")
           .nickname(request.nickname())
           .build();
-      customerRepository.save(newCustomer);
-      // 3. Response
-      return new SignUpResponse(true);
+      CustomerEntity customerInDB = customerRepository.save(newCustomer);
+      log.info("SignUp Success? => Customer PK : {}"
+          , customerInDB.getId());
     }catch (BaseException e){
       log.error("SignUp failed: ", e);
       throw e;
@@ -72,22 +62,26 @@ public class CustomerService {
   }
 
   public SignInResponse signIn(SignInRequest request) {
-    if(request == null ||
-        request.email().isEmpty() ||
-        request.password().isEmpty()){
-      throw new BaseException(ErrorCode.BAD_REQUEST); // 빈 값
-    }
-    UserDetails userDetails = customUserDetailService
-                                              .loadUserByUsername(request.email());
+
+    UserDetails userDetails =
+        customUserDetailService.loadUserByUsername(request.email());
+
     if(!checkPassword(request.password(), userDetails.getPassword())){ // 비밀번호 비교
       throw new BaseException(ErrorCode.BAD_REQUEST);
     }
-    //List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(customer.getRole().toString()));
-    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    Authentication authentication =
+        new UsernamePasswordAuthenticationToken(
+            userDetails,
+            null,
+            userDetails.getAuthorities()
+        );
     TokenDto token = jwtTokenProvider.generateToken(authentication);
 
-    CustomerEntity customer = (CustomerEntity) userDetails;
-    log.info("유저 권한 : "+ customer.getAuthorities().toString());
+    CustomerEntity customer =
+        customerRepository.findByEmail(request.email())
+            .orElseThrow(
+                () -> new BaseException(ErrorCode.USER_NOT_FOUND)
+            );
     return SignInResponse.builder()
         .nickname(customer.getNickname())
         .tokenDto(token)
@@ -96,5 +90,13 @@ public class CustomerService {
 
   public boolean checkPassword(String rawPassword, String encodedPassword) {
     return passwordEncoder.matches(rawPassword, encodedPassword);
+  }
+
+  public String encodingPassword(SignUpRequest request){
+    try {
+      return passwordEncoder.encode(request.password());
+    } catch (Exception e) {
+      throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Password encoding failed", e);
+    }
   }
 }

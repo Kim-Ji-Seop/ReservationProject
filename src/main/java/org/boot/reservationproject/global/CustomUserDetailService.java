@@ -21,13 +21,16 @@ public class CustomUserDetailService implements UserDetailsService {
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     SellerEntity seller = sellerRepository.findByCpEmail(username).orElse(null);
     if (seller != null) {
-      return seller;
+      CustomUserDetails userDetails = seller.toUserDetails();
+      log.info("판매자 권한 {}", userDetails.getAuthorities());
+      return userDetails;
     }
 
     CustomerEntity customer = customerRepository.findByEmail(username).orElse(null);
     if (customer != null) {
-      log.info("유저 권한 : "+customer.getAuthorities());
-      return customer;
+      CustomUserDetails userDetails = customer.toUserDetails();
+      log.info("구매자 권한 {}", userDetails.getAuthorities());
+      return userDetails;
     }
 
     throw new UsernameNotFoundException("해당하는 유저를 찾을 수 없습니다.");

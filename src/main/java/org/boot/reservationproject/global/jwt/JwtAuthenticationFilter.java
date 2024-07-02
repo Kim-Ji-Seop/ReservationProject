@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request,
                                   HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
-    //log.info("doFilterInternal 실행 경로: {}", request.getServletPath());
+    log.info("doFilterInternal 실행 경로: {}", request.getServletPath());
     String jwt = getJwtFromRequest(request);
     if (jwt == null) {
       sendErrorResponse(response, ErrorCode.TOKEN_NOT_EXIST);

@@ -45,8 +45,9 @@ public class CustomerService {
       } catch (Exception e) {
         throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Password encoding failed", e);
       }
-      log.info("SignUp Method => before pw : "+request.password()
-          + " | " + "after store pw :" + encodedPassword);
+      log.info("SignUp Method => before pw : {} | after store pw : {}"
+          , request.password()
+          , encodedPassword);
       // 2. 데이터 삽입
       CustomerEntity newCustomer = CustomerEntity.builder()
           .email(request.email())
@@ -87,7 +88,7 @@ public class CustomerService {
     TokenDto token = jwtTokenProvider.generateToken(authentication);
 
     CustomerEntity customer = (CustomerEntity) userDetails;
-    log.info("유저 권한 : "+ customer.getAuthorities().toString());
+    log.info("유저 권한 : {}", customer.getAuthorities().toString());
     return SignInResponse.builder()
         .nickname(customer.getNickname())
         .tokenDto(token)

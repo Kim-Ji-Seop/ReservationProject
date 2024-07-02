@@ -49,8 +49,10 @@ public class SellerService {
       } catch (Exception e) {
         throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Password encoding failed", e);
       }
-      log.info("SignUp Method => before pw : "+request.password()
-          + " | " + "after store pw :" + encodedPassword);
+      log.info("SignUp Method => before pw : {} | after store pw : {}"
+          , request.password()
+          , encodedPassword);
+
       // 2. 데이터 삽입
       SellerEntity newSeller = SellerEntity.builder()
           .cpEmail(request.cpEmail())
@@ -90,7 +92,7 @@ public class SellerService {
     TokenDto token = jwtTokenProvider.generateToken(authentication);
 
     SellerEntity seller = (SellerEntity) userDetails;
-    log.info("유저 권한 : "+ seller.getAuthorities().toString());
+    log.info("유저 권한 : {}", seller.getAuthorities().toString());
     return SellerSignInResponse.builder()
         .epName(seller.getEpName())
         .cpName(seller.getCpName())

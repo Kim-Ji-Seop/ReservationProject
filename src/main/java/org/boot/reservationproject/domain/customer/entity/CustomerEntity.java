@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.boot.reservationproject.global.BaseEntity;
+import org.boot.reservationproject.global.Gender;
 import org.boot.reservationproject.global.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -74,7 +75,4 @@ public class CustomerEntity extends BaseEntity implements UserDetails {
     return this.email;
   }
 
-  public enum Gender {
-    MALE, FEMALE
-  }
 }

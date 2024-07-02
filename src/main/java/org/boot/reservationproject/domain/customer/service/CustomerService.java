@@ -6,10 +6,9 @@ import org.boot.reservationproject.domain.customer.dto.request.SignInRequest;
 import org.boot.reservationproject.domain.customer.dto.request.SignUpRequest;
 import org.boot.reservationproject.domain.customer.dto.response.SignInResponse;
 import org.boot.reservationproject.domain.customer.entity.CustomerEntity;
-import org.boot.reservationproject.domain.customer.entity.CustomerEntity.Gender;
 import org.boot.reservationproject.domain.customer.repository.CustomerRepository;
-import org.boot.reservationproject.domain.seller.dto.request.SellerSignUpRequest;
 import org.boot.reservationproject.global.CustomUserDetailService;
+import org.boot.reservationproject.global.Gender;
 import org.boot.reservationproject.global.Role;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
@@ -51,7 +50,7 @@ public class CustomerService {
           .phoneNumber(request.phoneNumber())
           .birthday(request.birthday())
           .role(Role.CUSTOMER)
-          .gender(request.gender().equals("MALE") ? Gender.MALE : Gender.FEMALE)
+          .gender(Gender.valueOf(request.gender().name()))
           .name("")
           .nickname(request.nickname())
           .build();

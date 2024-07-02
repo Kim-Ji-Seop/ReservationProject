@@ -1,5 +1,6 @@
 package org.boot.reservationproject.domain.customer;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.boot.reservationproject.domain.customer.dto.request.SignInRequest;
 import org.boot.reservationproject.domain.customer.dto.request.SignUpRequest;
@@ -22,7 +23,7 @@ public class CustomerController {
    * 이메일, 비밀번호, 전화번호, 생년월일, 성별, 닉네임 입력
    */
   @PostMapping("/registration")
-  public void signUp(@RequestBody SignUpRequest request){
+  public void signUp(@Valid @RequestBody SignUpRequest request){
     customerService.signUp(request);
   }
 

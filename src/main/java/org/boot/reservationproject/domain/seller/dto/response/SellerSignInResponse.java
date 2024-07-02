@@ -1,4 +1,4 @@
-package org.boot.reservationproject.domain.seller.manager.dto.response;
+package org.boot.reservationproject.domain.seller.dto.response;
 
 import org.boot.reservationproject.global.jwt.TokenDto;
 

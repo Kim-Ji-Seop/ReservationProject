@@ -32,7 +32,9 @@ public class SecurityConfig {
         .sessionManagement(sessionManagement ->
             sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/**").permitAll())
+            .requestMatchers("/api/customers/**"
+                            ,"/api/sellers/**").permitAll()
+            .anyRequest().authenticated())
         .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider,redisDao)
             ,UsernamePasswordAuthenticationFilter.class);
     return httpSecurity.build();

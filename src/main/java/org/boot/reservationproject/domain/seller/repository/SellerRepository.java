@@ -1,7 +1,7 @@
-package org.boot.reservationproject.domain.seller.manager.repository;
+package org.boot.reservationproject.domain.seller.repository;
 
 import java.util.Optional;
-import org.boot.reservationproject.domain.seller.manager.entity.SellerEntity;
+import org.boot.reservationproject.domain.seller.entity.SellerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SellerRepository extends JpaRepository<SellerEntity,Long> {

@@ -1,4 +1,4 @@
-package org.boot.reservationproject.domain.customer.user.entity;
+package org.boot.reservationproject.domain.customer.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,7 +45,7 @@ public class CustomerEntity extends BaseEntity implements UserDetails {
   private String birthday;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "role", nullable = false, length = 10)
+  @Column(name = "role", nullable = false, length = 20)
   private Role role;
 
   @Enumerated(EnumType.STRING)
@@ -61,7 +61,6 @@ public class CustomerEntity extends BaseEntity implements UserDetails {
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_"+role.getKey());
-    System.out.println(authority.getAuthority());
     return Collections.singletonList(authority);
   }
 

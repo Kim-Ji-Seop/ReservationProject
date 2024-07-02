@@ -1,11 +1,11 @@
-package org.boot.reservationproject.domain.seller.manager.service;
+package org.boot.reservationproject.domain.seller.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.boot.reservationproject.domain.seller.manager.dto.request.SellerSignUpRequest;
-import org.boot.reservationproject.domain.seller.manager.dto.response.SellerSignUpResponse;
-import org.boot.reservationproject.domain.seller.manager.entity.SellerEntity;
-import org.boot.reservationproject.domain.seller.manager.repository.SellerRepository;
+import org.boot.reservationproject.domain.seller.dto.request.SellerSignUpRequest;
+import org.boot.reservationproject.domain.seller.dto.response.SellerSignUpResponse;
+import org.boot.reservationproject.domain.seller.entity.SellerEntity;
+import org.boot.reservationproject.domain.seller.repository.SellerRepository;
 import org.boot.reservationproject.global.Role;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;

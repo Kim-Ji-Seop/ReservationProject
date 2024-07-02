@@ -1,4 +1,4 @@
-package org.boot.reservationproject.domain.seller.manager.entity;
+package org.boot.reservationproject.domain.seller.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,11 +1,11 @@
-package org.boot.reservationproject.domain.customer.user;
+package org.boot.reservationproject.domain.customer;
 
 import lombok.RequiredArgsConstructor;
-import org.boot.reservationproject.domain.customer.user.dto.request.SignInRequest;
-import org.boot.reservationproject.domain.customer.user.dto.request.SignUpRequest;
-import org.boot.reservationproject.domain.customer.user.dto.response.SignInResponse;
-import org.boot.reservationproject.domain.customer.user.dto.response.SignUpResponse;
-import org.boot.reservationproject.domain.customer.user.service.CustomerService;
+import org.boot.reservationproject.domain.customer.dto.request.SignInRequest;
+import org.boot.reservationproject.domain.customer.dto.request.SignUpRequest;
+import org.boot.reservationproject.domain.customer.dto.response.SignInResponse;
+import org.boot.reservationproject.domain.customer.dto.response.SignUpResponse;
+import org.boot.reservationproject.domain.customer.service.CustomerService;
 import org.boot.reservationproject.global.error.BaseResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

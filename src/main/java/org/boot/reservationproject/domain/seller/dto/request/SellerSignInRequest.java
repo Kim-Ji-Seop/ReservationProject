@@ -1,4 +1,4 @@
-package org.boot.reservationproject.domain.seller.manager.dto.request;
+package org.boot.reservationproject.domain.seller.dto.request;
 
 public record SellerSignInRequest(
     String cpEmail,

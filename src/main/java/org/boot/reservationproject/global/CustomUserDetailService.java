@@ -1,10 +1,11 @@
 package org.boot.reservationproject.global;
 
 import lombok.RequiredArgsConstructor;
-import org.boot.reservationproject.domain.customer.user.entity.CustomerEntity;
-import org.boot.reservationproject.domain.customer.user.repository.CustomerRepository;
-import org.boot.reservationproject.domain.seller.manager.entity.SellerEntity;
-import org.boot.reservationproject.domain.seller.manager.repository.SellerRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.boot.reservationproject.domain.customer.entity.CustomerEntity;
+import org.boot.reservationproject.domain.customer.repository.CustomerRepository;
+import org.boot.reservationproject.domain.seller.entity.SellerEntity;
+import org.boot.reservationproject.domain.seller.repository.SellerRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CustomUserDetailService implements UserDetailsService {
   private final SellerRepository sellerRepository;
   private final CustomerRepository customerRepository;
@@ -24,6 +26,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     CustomerEntity customer = customerRepository.findByEmail(username).orElse(null);
     if (customer != null) {
+      log.info("유저 권한 : "+customer.getAuthorities());
       return customer;
     }
 

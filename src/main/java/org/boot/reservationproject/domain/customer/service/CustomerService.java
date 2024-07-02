@@ -1,15 +1,14 @@
-package org.boot.reservationproject.domain.customer.user.service;
+package org.boot.reservationproject.domain.customer.service;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.boot.reservationproject.domain.customer.user.dto.request.SignInRequest;
-import org.boot.reservationproject.domain.customer.user.dto.request.SignUpRequest;
-import org.boot.reservationproject.domain.customer.user.dto.response.SignInResponse;
-import org.boot.reservationproject.domain.customer.user.dto.response.SignUpResponse;
-import org.boot.reservationproject.domain.customer.user.entity.CustomerEntity;
-import org.boot.reservationproject.domain.customer.user.entity.CustomerEntity.Gender;
-import org.boot.reservationproject.domain.customer.user.repository.CustomerRepository;
+import org.boot.reservationproject.domain.customer.dto.request.SignInRequest;
+import org.boot.reservationproject.domain.customer.dto.request.SignUpRequest;
+import org.boot.reservationproject.domain.customer.dto.response.SignInResponse;
+import org.boot.reservationproject.domain.customer.dto.response.SignUpResponse;
+import org.boot.reservationproject.domain.customer.entity.CustomerEntity;
+import org.boot.reservationproject.domain.customer.entity.CustomerEntity.Gender;
+import org.boot.reservationproject.domain.customer.repository.CustomerRepository;
 import org.boot.reservationproject.global.CustomUserDetailService;
 import org.boot.reservationproject.global.Role;
 import org.boot.reservationproject.global.error.BaseException;
@@ -18,8 +17,6 @@ import org.boot.reservationproject.global.jwt.JwtTokenProvider;
 import org.boot.reservationproject.global.jwt.TokenDto;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -85,12 +82,12 @@ public class CustomerService {
     if(!checkPassword(request.password(), userDetails.getPassword())){ // 비밀번호 비교
       throw new BaseException(ErrorCode.BAD_REQUEST);
     }
-
-    CustomerEntity customer = (CustomerEntity) userDetails;
-    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(customer.getRole().toString()));
-    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+    //List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(customer.getRole().toString()));
+    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     TokenDto token = jwtTokenProvider.generateToken(authentication);
 
+    CustomerEntity customer = (CustomerEntity) userDetails;
+    log.info("유저 권한 : "+ customer.getAuthorities().toString());
     return SignInResponse.builder()
         .nickname(customer.getNickname())
         .tokenDto(token)

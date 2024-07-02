@@ -1,4 +1,4 @@
-package org.boot.reservationproject.domain.customer.user.dto.response;
+package org.boot.reservationproject.domain.customer.dto.response;
 
 import lombok.Builder;
 import org.boot.reservationproject.global.jwt.TokenDto;

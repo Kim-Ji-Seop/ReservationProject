@@ -19,7 +19,6 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
-@Component
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final JwtTokenProvider jwtTokenProvider;
@@ -27,19 +26,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     String path = request.getServletPath();
-    request.getMethod();
     AntPathMatcher pathMatcher = new AntPathMatcher();
-    System.out.println(path);
-    return (
-        pathMatcher.match("/api/customers/registration", path) && request.getMethod().equals("POST") || // 회원가입 > 구매자
-        pathMatcher.match("/api/sellers/registration", path) && request.getMethod().equals("POST") || // 회원가입 > 판매자
-        pathMatcher.match("/api/customers/auth-email", path) && request.getMethod().equals("POST") // 이메일 로그인 > 구매자
+    boolean shouldNotFilter = (
+            pathMatcher.match("/api/customers/registration", path) && request.getMethod().equals("POST") || // 회원가입 > 구매자
+            pathMatcher.match("/api/sellers/registration", path) && request.getMethod().equals("POST") || // 회원가입 > 판매자
+            pathMatcher.match("/api/customers/auth-email", path) && request.getMethod().equals("POST") // 이메일 로그인 > 구매자
     );
+    return shouldNotFilter;
   }
   @Override
   protected void doFilterInternal(HttpServletRequest request,
                                   HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
+    //log.info("doFilterInternal 실행 경로: {}", request.getServletPath());
     String jwt = getJwtFromRequest(request);
     if (jwt == null) {
       sendErrorResponse(response, ErrorCode.TOKEN_NOT_EXIST);

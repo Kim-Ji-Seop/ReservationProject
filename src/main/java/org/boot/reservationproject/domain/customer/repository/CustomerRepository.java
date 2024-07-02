@@ -1,7 +1,7 @@
-package org.boot.reservationproject.domain.customer.user.repository;
+package org.boot.reservationproject.domain.customer.repository;
 
 import java.util.Optional;
-import org.boot.reservationproject.domain.customer.user.entity.CustomerEntity;
+import org.boot.reservationproject.domain.customer.entity.CustomerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

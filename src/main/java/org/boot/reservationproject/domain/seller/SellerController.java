@@ -1,9 +1,9 @@
-package org.boot.reservationproject.domain.seller.manager;
+package org.boot.reservationproject.domain.seller;
 
 import lombok.RequiredArgsConstructor;
-import org.boot.reservationproject.domain.seller.manager.dto.request.SellerSignUpRequest;
-import org.boot.reservationproject.domain.seller.manager.dto.response.SellerSignUpResponse;
-import org.boot.reservationproject.domain.seller.manager.service.SellerService;
+import org.boot.reservationproject.domain.seller.dto.request.SellerSignUpRequest;
+import org.boot.reservationproject.domain.seller.dto.response.SellerSignUpResponse;
+import org.boot.reservationproject.domain.seller.service.SellerService;
 import org.boot.reservationproject.global.error.BaseResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -28,35 +28,27 @@ public class SellerService {
   private final CustomUserDetailService customUserDetailService;
   private final JwtTokenProvider jwtTokenProvider;
   public void signUp(SellerSignUpRequest request) {
-    try{
-      // 1. 비밀번호 암호화
-      String encodedPassword = encodingPassword(request);
+    // 1. 비밀번호 암호화
+    String encodedPassword = encodingPassword(request);
 
-      log.info("SignUp Method => before pw : {} | after store pw : {}"
-          , request.password()
-          , encodedPassword);
+    log.info("SignUp Method => before pw : {} | after store pw : {}"
+        , request.password()
+        , encodedPassword);
 
-      // 2. 데이터 삽입
-      SellerEntity newSeller = SellerEntity.builder()
-          .cpEmail(request.cpEmail())
-          .cpPassword(encodedPassword)
-          .epPhoneNumber(request.epPhoneNumber())
-          .epName(request.epName())
-          .epCode(request.epCode())
-          .cpName(request.cpName())
-          .cpLocation(request.cpLocation())
-          .role(Role.SELLER)
-          .build();
-      SellerEntity sellerInDB = sellerRepository.save(newSeller);
-      log.info("SignUp Success? => Seller PK : {}"
-          , sellerInDB.getId());
-    }catch (BaseException e){
-      log.error("SignUp failed: ", e);
-      throw e;
-    }catch (Exception e){
-      log.error("Unexpected error during signUp: ", e);
-      throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Unexpected error", e);
-    }
+    // 2. 데이터 삽입
+    SellerEntity newSeller = SellerEntity.builder()
+        .cpEmail(request.cpEmail())
+        .cpPassword(encodedPassword)
+        .epPhoneNumber(request.epPhoneNumber())
+        .epName(request.epName())
+        .epCode(request.epCode())
+        .cpName(request.cpName())
+        .cpLocation(request.cpLocation())
+        .role(Role.SELLER)
+        .build();
+    SellerEntity sellerInDB = sellerRepository.save(newSeller);
+    log.info("SignUp Success? => Seller PK : {}"
+        , sellerInDB.getId());
   }
 
   public SellerSignInResponse signIn(SellerSignInRequest request) {
@@ -90,10 +82,6 @@ public class SellerService {
   }
 
   public String encodingPassword(SellerSignUpRequest request){
-    try {
-      return passwordEncoder.encode(request.password());
-    } catch (Exception e) {
-      throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Password encoding failed", e);
-    }
+    return passwordEncoder.encode(request.password());
   }
 }

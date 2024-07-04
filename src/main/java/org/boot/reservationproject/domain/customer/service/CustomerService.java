@@ -29,40 +29,27 @@ public class CustomerService {
   private final CustomUserDetailService customUserDetailService;
   private final JwtTokenProvider jwtTokenProvider;
   public void signUp(SignUpRequest request) {
-    try{
-
-      // 1. 비밀번호 암호화
-      String encodedPassword = encodingPassword(request);
-
-      log.info("SignUp Method => before pw : {} | after store pw : {}"
-          , request.password()
-          , encodedPassword);
-      // 2. 데이터 삽입
-      CustomerEntity newCustomer = CustomerEntity.builder()
-          .email(request.email())
-          .password(encodedPassword)
-          .phoneNumber(request.phoneNumber())
-          .birthday(request.birthday())
-          .role(Role.CUSTOMER)
-          .gender(Gender.valueOf(request.gender().name()))
-          .name("")
-          .nickname(request.nickname())
-          .build();
-      CustomerEntity customerInDB = customerRepository.save(newCustomer);
-      log.info("SignUp Success? => Customer PK : {}"
-          , customerInDB.getId());
-    }catch (BaseException e){
-      log.error("SignUp failed: ", e);
-      throw e;
-    }catch (Exception e){
-      log.error("Unexpected error during signUp: ", e);
-      throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Unexpected error", e);
-    }
-
+    // 1. 비밀번호 암호화
+    String encodedPassword = encodingPassword(request);
+    log.info("SignUp Method => before pw : {} | after store pw : {}"
+        , request.password()
+        , encodedPassword);
+    // 2. 데이터 삽입
+    CustomerEntity newCustomer = CustomerEntity.builder()
+        .email(request.email())
+        .password(encodedPassword)
+        .phoneNumber(request.phoneNumber())
+        .birthday(request.birthday())
+        .role(Role.CUSTOMER)
+        .gender(Gender.valueOf(request.gender().name()))
+        .nickname(request.nickname())
+        .build();
+    CustomerEntity customerInDB = customerRepository.save(newCustomer);
+    log.info("SignUp Success? => Customer PK : {}"
+        , customerInDB.getId());
   }
 
   public SignInResponse signIn(SignInRequest request) {
-
     UserDetails userDetails =
         customUserDetailService.loadUserByUsername(request.email());
 
@@ -93,10 +80,6 @@ public class CustomerService {
   }
 
   public String encodingPassword(SignUpRequest request){
-    try {
-      return passwordEncoder.encode(request.password());
-    } catch (Exception e) {
-      throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "Password encoding failed", e);
-    }
+    return passwordEncoder.encode(request.password());
   }
 }

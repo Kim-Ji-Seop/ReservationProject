@@ -49,10 +49,23 @@ public class GlobalExceptionHandler {
         .collect(Collectors.toList());
 
     // ValidationErrorResponse 객체 생성
-    ValidationErrorResponse response = new ValidationErrorResponse(INVALID_VALUE.getCode(), errors);
+    ValidationErrorResponse response =
+        new ValidationErrorResponse(INVALID_VALUE.getCode(), errors);
 
     return ResponseEntity
         .status(INVALID_VALUE.getHttpStatus())
         .body(response);
+  }
+
+  // 이외 Error
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<BaseResponse> handleException(
+      Exception e, HttpServletRequest request)
+  {
+    log.error("[Common Exception] url: {} | errorMessage: {}",
+        request.getRequestURL(), e.getMessage());
+    return ResponseEntity
+        .status(INTERNAL_SERVER_ERROR.getHttpStatus())
+        .body(new BaseResponse<>(INTERNAL_SERVER_ERROR));
   }
 }

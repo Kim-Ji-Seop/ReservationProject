@@ -17,9 +17,9 @@ public class RedisDao {
     values.set(key, data);
   }
 
-  public void setValues(Authentication authentication, String refreshToken, Long time) {
+  public void setValues(String userEmail, String refreshToken, Long time) {
     ValueOperations<String, Object> values = redisTemplate.opsForValue();
-    values.set(authentication.getName(), refreshToken, time, TimeUnit.MILLISECONDS);
+    values.set(userEmail, refreshToken, time, TimeUnit.MILLISECONDS);
   }
 
   public String getValues(String key) {

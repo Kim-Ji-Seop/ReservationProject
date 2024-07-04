@@ -56,19 +56,14 @@ public class CustomerService {
     if(!checkPassword(request.password(), userDetails.getPassword())){ // 비밀번호 비교
       throw new BaseException(ErrorCode.BAD_REQUEST);
     }
-    Authentication authentication =
-        new UsernamePasswordAuthenticationToken(
-            userDetails,
-            null,
-            userDetails.getAuthorities()
-        );
-    TokenDto token = jwtTokenProvider.generateToken(authentication);
 
     CustomerEntity customer =
         customerRepository.findByEmail(request.email())
             .orElseThrow(
                 () -> new BaseException(ErrorCode.USER_NOT_FOUND)
             );
+
+    TokenDto token = jwtTokenProvider.generateToken(userDetails.getUsername(),userDetails.getAuthorities());
     return SignInResponse.builder()
         .nickname(customer.getNickname())
         .tokenDto(token)

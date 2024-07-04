@@ -52,25 +52,23 @@ public class SellerService {
   }
 
   public SellerSignInResponse signIn(SellerSignInRequest request) {
-
     UserDetails userDetails =
         customUserDetailService.loadUserByUsername(request.cpEmail());
     if(!checkPassword(request.cpPassword(), userDetails.getPassword())){ // 비밀번호 비교
       throw new BaseException(ErrorCode.BAD_REQUEST);
     }
-    Authentication authentication =
-        new UsernamePasswordAuthenticationToken(
-            userDetails,
-            null,
-            userDetails.getAuthorities()
-        );
-    TokenDto token = jwtTokenProvider.generateToken(authentication);
 
     SellerEntity seller =
         sellerRepository.findByCpEmail(request.cpEmail())
             .orElseThrow(
                 () -> new BaseException(ErrorCode.USER_NOT_FOUND)
             );
+
+    TokenDto token = jwtTokenProvider
+        .generateToken(
+            userDetails.getUsername(),
+            userDetails.getAuthorities());
+
     return SellerSignInResponse.builder()
         .epName(seller.getEpName())
         .cpName(seller.getCpName())

@@ -62,8 +62,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<BaseResponse> handleException(
       Exception e, HttpServletRequest request)
   {
-    log.error("[Common Exception] url: {} | errorMessage: {}",
-        request.getRequestURL(), e.getMessage());
+    log.error("[Common Exception] url: {}", request.getRequestURL(), e);
     return ResponseEntity
         .status(INTERNAL_SERVER_ERROR.getHttpStatus())
         .body(new BaseResponse<>(INTERNAL_SERVER_ERROR));

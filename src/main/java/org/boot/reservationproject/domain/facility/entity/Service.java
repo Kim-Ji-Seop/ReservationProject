@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import org.boot.reservationproject.global.BaseEntity;
 
 @Entity
-@Table(name = "service")
+@Table(name = "service") // 서비스 및 부대시설
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

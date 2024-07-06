@@ -7,7 +7,7 @@ import org.boot.reservationproject.domain.seller.dto.request.SellerSignUpRequest
 import org.boot.reservationproject.domain.seller.dto.response.SellerSignInResponse;
 import org.boot.reservationproject.domain.seller.entity.Seller;
 import org.boot.reservationproject.domain.seller.repository.SellerRepository;
-import org.boot.reservationproject.global.CustomUserDetailService;
+import org.boot.reservationproject.global.userDetails.CustomUserDetailService;
 import org.boot.reservationproject.global.Role;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
@@ -37,7 +37,7 @@ public class SellerService {
     Seller newSeller = Seller.builder()
         .cpEmail(request.cpEmail())
         .cpPassword(encodedPassword)
-        .epPhoneNumber(request.epPhoneNumber())
+        .phoneNumber(request.epPhoneNumber())
         .epName(request.epName())
         .epCode(request.epCode())
         .cpName(request.cpName())

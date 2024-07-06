@@ -1,7 +1,8 @@
-package org.boot.reservationproject.global;
+package org.boot.reservationproject.global.userDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import org.boot.reservationproject.global.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

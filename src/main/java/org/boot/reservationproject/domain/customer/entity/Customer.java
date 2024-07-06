@@ -13,7 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.boot.reservationproject.global.BaseEntity;
-import org.boot.reservationproject.global.CustomUserDetails;
+import org.boot.reservationproject.global.userDetails.CustomUserDetails;
 import org.boot.reservationproject.global.Gender;
 import org.boot.reservationproject.global.Role;
 

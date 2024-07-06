@@ -17,28 +17,25 @@ import org.boot.reservationproject.global.BaseEntity;
 import org.boot.reservationproject.global.Category;
 
 @Entity
-@Table(name = "accomodation")
+@Table(name = "facility")
 @Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Accomodation extends BaseEntity {
+public class Facility extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "seller_id")
-  private Seller seller;
+  private Seller seller; // 판매자
 
-  @Column(name = "accomodation_name", nullable = false, length = 20)
-  private String accomodationName;
-
-  @Column(name = "phone_number",nullable = false,length = 11)
-  private String phoneNumber;
+  @Column(name = "facility_name", nullable = false, length = 20)
+  private String facilityName; // 시설 이름
 
   @Column(name = "category",nullable = false)
-  private Category category;
+  private Category category; // 시설 카테고리
 
   @Column(name = "region", nullable = false, length = 10)
   private String region; // 지역(경북/강원..)
@@ -47,5 +44,5 @@ public class Accomodation extends BaseEntity {
   private String location; // 위치(상세주소)
 
   @Column(name = "reg_cancel_refund",nullable = false,length = 1500)
-  private String regCancelRefund;
+  private String regCancelRefund; // 취소 및 환불 규정
 }

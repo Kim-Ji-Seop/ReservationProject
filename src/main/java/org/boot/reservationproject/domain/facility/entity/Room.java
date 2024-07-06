@@ -28,7 +28,7 @@ public class Room extends BaseEntity {
 
   @ManyToOne
   @JoinColumn(name = "accomodation_id")
-  private Accomodation accomodation;
+  private Facility facility;
 
   @Column(name = "room_number",nullable = false,length = 40)
   private String roomNumber; // 객실 번호
@@ -39,11 +39,11 @@ public class Room extends BaseEntity {
   @Column(name = "max_people",nullable = false)
   private int maxPeople; // 최대 인원
 
-  @Column(name = "check_in_time",nullable = false)
-  private LocalDateTime checkInTime; // 체크인 가능 시간
+  @Column(name = "check_in_time",nullable = false, length = 7) // 15 : 00
+  private String checkInTime; // 체크인 가능 시간
 
-  @Column(name = "check_out_time",nullable = false)
-  private LocalDateTime checkOutTime; // 체크아웃 시간
+  @Column(name = "check_out_time",nullable = false, length = 7) // 11 : 00
+  private String checkOutTime; // 체크아웃 시간
 
   @Column(name = "price",nullable = false)
   private int price; // 가격

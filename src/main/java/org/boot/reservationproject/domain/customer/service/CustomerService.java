@@ -7,7 +7,7 @@ import org.boot.reservationproject.domain.customer.dto.request.SignUpRequest;
 import org.boot.reservationproject.domain.customer.dto.response.SignInResponse;
 import org.boot.reservationproject.domain.customer.entity.Customer;
 import org.boot.reservationproject.domain.customer.repository.CustomerRepository;
-import org.boot.reservationproject.global.CustomUserDetailService;
+import org.boot.reservationproject.global.userDetails.CustomUserDetailService;
 import org.boot.reservationproject.global.Gender;
 import org.boot.reservationproject.global.Role;
 import org.boot.reservationproject.global.error.BaseException;

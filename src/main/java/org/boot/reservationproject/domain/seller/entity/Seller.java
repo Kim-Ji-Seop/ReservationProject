@@ -13,7 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.boot.reservationproject.global.BaseEntity;
-import org.boot.reservationproject.global.CustomUserDetails;
+import org.boot.reservationproject.global.userDetails.CustomUserDetails;
 import org.boot.reservationproject.global.Role;
 
 @Entity
@@ -34,8 +34,8 @@ public class Seller extends BaseEntity {
   @Column(name = "cp_password",nullable = false, length = 60)
   private String cpPassword; // 패스워드
 
-  @Column(name = "ep_phone_number",nullable = false, length = 11)
-  private String epPhoneNumber; // 대표자 전화번호
+  @Column(name = "phone_number",nullable = false, length = 11)
+  private String phoneNumber; // 전화번호
 
   @Column(name = "ep_name",nullable = false, length = 10)
   private String epName; // 대표자 이름

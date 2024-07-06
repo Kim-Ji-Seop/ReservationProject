@@ -16,14 +16,14 @@ import org.boot.reservationproject.global.BaseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class AccomodationService extends BaseEntity {
+public class FacilityService extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "accomodation_id")
-  private Accomodation accomodation;
+  private Facility facility;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "service_id")

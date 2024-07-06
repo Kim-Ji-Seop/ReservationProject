@@ -63,7 +63,9 @@ public class CustomerService {
                 () -> new BaseException(ErrorCode.USER_NOT_FOUND)
             );
 
-    TokenDto token = jwtTokenProvider.generateToken(userDetails.getUsername(),userDetails.getAuthorities());
+    TokenDto token = jwtTokenProvider
+        .generateToken(userDetails.getUsername(),userDetails.getAuthorities());
+
     return SignInResponse.builder()
         .nickname(customer.getNickname())
         .tokenDto(token)

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.customer.dto.request.SignInRequest;
 import org.boot.reservationproject.domain.customer.dto.request.SignUpRequest;
 import org.boot.reservationproject.domain.customer.dto.response.SignInResponse;
-import org.boot.reservationproject.domain.customer.entity.CustomerEntity;
+import org.boot.reservationproject.domain.customer.entity.Customer;
 import org.boot.reservationproject.domain.customer.repository.CustomerRepository;
 import org.boot.reservationproject.global.CustomUserDetailService;
 import org.boot.reservationproject.global.Gender;
@@ -14,8 +14,6 @@ import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
 import org.boot.reservationproject.global.jwt.JwtTokenProvider;
 import org.boot.reservationproject.global.jwt.TokenDto;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,7 +33,7 @@ public class CustomerService {
         , request.password()
         , encodedPassword);
     // 2. 데이터 삽입
-    CustomerEntity newCustomer = CustomerEntity.builder()
+    Customer newCustomer = Customer.builder()
         .email(request.email())
         .password(encodedPassword)
         .phoneNumber(request.phoneNumber())
@@ -44,7 +42,7 @@ public class CustomerService {
         .gender(Gender.valueOf(request.gender().name()))
         .nickname(request.nickname())
         .build();
-    CustomerEntity customerInDB = customerRepository.save(newCustomer);
+    Customer customerInDB = customerRepository.save(newCustomer);
     log.info("SignUp Success? => Customer PK : {}"
         , customerInDB.getId());
   }
@@ -57,7 +55,7 @@ public class CustomerService {
       throw new BaseException(ErrorCode.BAD_REQUEST);
     }
 
-    CustomerEntity customer =
+    Customer customer =
         customerRepository.findByEmail(request.email())
             .orElseThrow(
                 () -> new BaseException(ErrorCode.USER_NOT_FOUND)

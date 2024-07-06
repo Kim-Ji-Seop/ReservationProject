@@ -23,9 +23,9 @@ public class AccomodationService extends BaseEntity {
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "accomodation_id")
-  private AccomodationEntity accomodation;
+  private Accomodation accomodation;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "service_id")
-  private ServiceEntity service;
+  private Service service;
 }

@@ -7,15 +7,11 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.boot.reservationproject.domain.facility.entity.AccomodationEntity;
 import org.boot.reservationproject.global.BaseEntity;
 import org.boot.reservationproject.global.CustomUserDetails;
 import org.boot.reservationproject.global.Role;
@@ -26,7 +22,7 @@ import org.boot.reservationproject.global.Role;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class SellerEntity extends BaseEntity {
+public class Seller extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)

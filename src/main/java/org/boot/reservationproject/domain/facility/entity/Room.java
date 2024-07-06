@@ -21,14 +21,14 @@ import org.boot.reservationproject.global.BaseEntity;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoomEntity extends BaseEntity {
+public class Room extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @ManyToOne
   @JoinColumn(name = "accomodation_id")
-  private AccomodationEntity accomodation;
+  private Accomodation accomodation;
 
   @Column(name = "room_number",nullable = false,length = 40)
   private String roomNumber; // 객실 번호

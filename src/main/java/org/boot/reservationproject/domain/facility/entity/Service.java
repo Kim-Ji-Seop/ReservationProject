@@ -18,7 +18,7 @@ import org.boot.reservationproject.global.BaseEntity;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class ServiceEntity extends BaseEntity {
+public class Service extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

@@ -68,11 +68,11 @@ public class FacilityService {
       Room room = Room.builder()
           .facility(facility)
           .roomName(roomDetail.roomName())
-          .roomNumber(roomDetail.roomNumber())
           .minPeople(roomDetail.minPeople())
           .maxPeople(roomDetail.maxPeople())
           .checkInTime(roomDetail.checkInTime())
           .checkOutTime(roomDetail.checkOutTime())
+          .price(roomDetail.price())
           .build();
       rooms.add(room);
     }

@@ -31,10 +31,7 @@ public class Room extends BaseEntity {
   private Facility facility;
 
   @Column(name = "room_name",nullable = false,length = 50)
-  private String roomName;
-
-  @Column(name = "room_number",length = 40)
-  private String roomNumber; // 객실 번호
+  private String roomName; // 객실 이름
 
   @Column(name = "min_people",nullable = false)
   private int minPeople; // 최소 인원

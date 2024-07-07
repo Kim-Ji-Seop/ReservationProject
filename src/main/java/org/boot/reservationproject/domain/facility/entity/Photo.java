@@ -40,7 +40,7 @@ public class Photo extends BaseEntity {
   private Review review; // 리뷰
 
   @Lob
-  @Column(name = "photo_data", nullable = false)
+  @Column(name = "photo_data", nullable = false, columnDefinition="blob")
   private byte[] photoData;
 
   @Column(name = "photo_name", nullable = false, length = 30)

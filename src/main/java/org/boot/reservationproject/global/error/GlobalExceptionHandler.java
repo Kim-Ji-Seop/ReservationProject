@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
 
   // 이외 Error
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<BaseResponse> handleException(
+  public ResponseEntity<BaseResponse<?>> handleException(
       Exception e, HttpServletRequest request)
   {
     log.error("[Common Exception] url: {}", request.getRequestURL(), e);

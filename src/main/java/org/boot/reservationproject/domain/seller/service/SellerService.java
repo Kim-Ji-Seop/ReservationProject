@@ -37,7 +37,7 @@ public class SellerService {
     Seller newSeller = Seller.builder()
         .cpEmail(request.cpEmail())
         .cpPassword(encodedPassword)
-        .phoneNumber(request.epPhoneNumber())
+        .phoneNumber(request.phoneNumber())
         .epName(request.epName())
         .epCode(request.epCode())
         .cpName(request.cpName())

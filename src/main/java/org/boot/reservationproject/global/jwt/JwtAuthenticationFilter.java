@@ -14,8 +14,14 @@ import org.boot.reservationproject.global.error.BaseResponse;
 import org.boot.reservationproject.global.error.ErrorCode;
 import org.boot.reservationproject.global.redis.RedisDao;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
@@ -23,6 +29,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final JwtTokenProvider jwtTokenProvider;
   private final RedisDao redisDao;
+  private final UserDetailsService userDetailsService;
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     String path = request.getServletPath();
@@ -41,16 +48,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                   FilterChain filterChain) throws ServletException, IOException {
     log.info("doFilterInternal 실행 경로: {}", request.getServletPath());
     String jwt = getJwtFromRequest(request);
-    if (jwt == null) {
+    log.info("filter 에서 jwt 토큰 가져오기 : {}",jwt);
+
+    if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
+      String userEmail = jwtTokenProvider.getUserEmailFromJWT(jwt);
+      UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+      log.info("유저 정보: {}", userDetails);
+      if(userDetails != null){
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+      }
+    }else if (jwt == null){
       sendErrorResponse(response, ErrorCode.TOKEN_NOT_EXIST);
-      return; // 토큰이 없는 경우 여기서 처리 중단
+      return;
+    }else{
+      sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
+      return;
     }
+    filterChain.doFilter(request, response);
   }
 
   public String getJwtFromRequest(HttpServletRequest request) {
+    System.out.println(1);
     String bearerToken = request.getHeader("Authorization"); // Authorization 이름의 헤더의 내용을 가져온다.
     if (bearerToken.startsWith("Bearer ")) { // 헤더의 내용이 Bearer 로 시작하는지 확인
-      return bearerToken.substring("Bearer ".length()); // Bearer 이후의 내용이 토큰임. (AT or RT)
+      return bearerToken.substring(7); // Bearer 이후의 내용이 토큰임. (AT or RT)
     }
     return null;
   }

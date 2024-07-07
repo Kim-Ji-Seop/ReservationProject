@@ -30,7 +30,10 @@ public class Room extends BaseEntity {
   @JoinColumn(name = "accomodation_id")
   private Facility facility;
 
-  @Column(name = "room_number",nullable = false,length = 40)
+  @Column(name = "room_name",nullable = false,length = 50)
+  private String roomName;
+
+  @Column(name = "room_number",length = 40)
   private String roomNumber; // 객실 번호
 
   @Column(name = "min_people",nullable = false)

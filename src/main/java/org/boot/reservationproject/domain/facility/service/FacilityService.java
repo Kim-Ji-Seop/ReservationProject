@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
 import org.boot.reservationproject.domain.facility.dto.request.RoomDetail;
+import org.boot.reservationproject.domain.facility.dto.response.RegisterFacilityResponse;
+import org.boot.reservationproject.domain.facility.dto.response.RegisteredRoom;
 import org.boot.reservationproject.domain.facility.entity.Facility;
 import org.boot.reservationproject.domain.facility.entity.Photo;
 import org.boot.reservationproject.domain.facility.entity.Room;
@@ -29,7 +31,7 @@ public class FacilityService {
   private final PhotoRepository photoRepository;
 
   @Transactional
-  public void registerFacility(
+  public RegisterFacilityResponse registerFacility(
       RegisterFacilityRequest request,
       List<MultipartFile> facilityPhotos,
       String sellerEmail) throws IOException {
@@ -52,7 +54,6 @@ public class FacilityService {
     // 3. Photo 엔티티 생성 및 시설 사진 저장
     List<Photo> facilityPhotoEntities = new ArrayList<>();
     for(MultipartFile facilityPhoto : facilityPhotos){
-      log.info("facilityPhoto 길이 : {}",facilityPhoto.getBytes().length);
       Photo photo = Photo.builder()
           .facility(facility)
           .photoData(facilityPhoto.getBytes())
@@ -64,6 +65,7 @@ public class FacilityService {
 
     // 4. Room(객실) 엔티티 생성 및 저장
     List<Room> rooms = new ArrayList<>();
+    List<RegisteredRoom> registeredRooms = new ArrayList<>(); // dto에 넣을 List 객체
     for(RoomDetail roomDetail : request.rooms()){
       Room room = Room.builder()
           .facility(facility)
@@ -76,8 +78,37 @@ public class FacilityService {
           .build();
       rooms.add(room);
     }
-    roomRepository.saveAll(rooms);
+    rooms = roomRepository.saveAll(rooms);
+
+    for(Room room : rooms){
+      registeredRooms.add(new RegisteredRoom(room.getId(),room.getRoomName()));
+    }
 
     // 6. Facility - Service 매핑 엔티티 생성 및 저장
+
+    return RegisterFacilityResponse.builder()
+        .facilityIdx(facility.getId())
+        .registeredRooms(registeredRooms)
+        .build();
+  }
+
+  public void registerRoomPhotos(
+      Long facilityIdx, Long roomIdx,
+      List<MultipartFile> roomPhotos) throws IOException {
+
+    Facility facility = facilityRepository.findById(facilityIdx).orElseThrow();
+    Room room = roomRepository.findById(roomIdx).orElseThrow();
+
+    List<Photo> facilityPhotoEntities = new ArrayList<>();
+    for(MultipartFile roomPhoto : roomPhotos){
+      Photo photo = Photo.builder()
+          .facility(facility)
+          .room(room)
+          .photoData(roomPhoto.getBytes())
+          .photoName(roomPhoto.getOriginalFilename())
+          .build();
+      facilityPhotoEntities.add(photo);
+    }
+    photoRepository.saveAll(facilityPhotoEntities);
   }
 }

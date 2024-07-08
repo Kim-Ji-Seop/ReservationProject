@@ -8,18 +8,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.util.Collection;
-import java.util.Collections;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.boot.reservationproject.global.BaseEntity;
-import org.boot.reservationproject.global.CustomUserDetails;
+import org.boot.reservationproject.global.userDetails.CustomUserDetails;
 import org.boot.reservationproject.global.Role;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "seller")
@@ -27,7 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class SellerEntity extends BaseEntity {
+public class Seller extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
@@ -39,8 +34,8 @@ public class SellerEntity extends BaseEntity {
   @Column(name = "cp_password",nullable = false, length = 60)
   private String cpPassword; // 패스워드
 
-  @Column(name = "ep_phone_number",nullable = false, length = 11)
-  private String epPhoneNumber; // 대표자 전화번호
+  @Column(name = "phone_number",nullable = false, length = 11)
+  private String phoneNumber; // 전화번호
 
   @Column(name = "ep_name",nullable = false, length = 10)
   private String epName; // 대표자 이름

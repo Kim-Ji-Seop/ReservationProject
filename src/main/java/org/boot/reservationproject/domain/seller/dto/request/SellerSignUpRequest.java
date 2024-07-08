@@ -17,7 +17,7 @@ public record SellerSignUpRequest(
 
     @NotBlank(message = "대표 전화번호는 필수 입력 값입니다")
     @Size(max = 11, message = "전화번호는 11자 이내여야 합니다")
-    String epPhoneNumber,
+    String phoneNumber,
 
     @NotBlank(message = "대표 이름은 필수 입력 값입니다")
     @Size(max = 10, message = "대표 이름은 10자 이내여야 합니다")

@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -20,6 +21,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 public class SecurityConfig {
   private final RedisDao redisDao;
   private final JwtTokenProvider jwtTokenProvider;
+  private final UserDetailsService userDetailsService;
   @Bean
   public PasswordEncoder passwordEncoder(){
     return new BCryptPasswordEncoder(); // 단방향 해쉬
@@ -32,11 +34,8 @@ public class SecurityConfig {
         .sessionManagement(sessionManagement ->
             sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
-
-            .requestMatchers("/api/customers/**"
-                            ,"/api/sellers/**").permitAll()
-            .anyRequest().authenticated())
-        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider,redisDao)
+            .anyRequest().permitAll())
+        .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider,redisDao,userDetailsService)
             ,UsernamePasswordAuthenticationFilter.class);
     return httpSecurity.build();
   }

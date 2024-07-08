@@ -28,6 +28,7 @@ public class BaseEntity {
 
   public enum Status {
     ACTIVE,
-    DELETE
+    DELETE,
+    PENDING
   }
 }

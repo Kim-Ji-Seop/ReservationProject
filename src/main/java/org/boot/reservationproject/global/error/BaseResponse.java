@@ -29,4 +29,8 @@ public class BaseResponse<T> {
     this.code=e.getCode();
     this.message=e.getMessage();
   }
+  public BaseResponse(ErrorCode e) {
+    this.code=e.getCode();
+    this.message=e.getMessage();
+  }
 }

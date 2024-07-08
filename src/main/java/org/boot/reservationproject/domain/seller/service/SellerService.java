@@ -5,16 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.seller.dto.request.SellerSignInRequest;
 import org.boot.reservationproject.domain.seller.dto.request.SellerSignUpRequest;
 import org.boot.reservationproject.domain.seller.dto.response.SellerSignInResponse;
-import org.boot.reservationproject.domain.seller.entity.SellerEntity;
+import org.boot.reservationproject.domain.seller.entity.Seller;
 import org.boot.reservationproject.domain.seller.repository.SellerRepository;
-import org.boot.reservationproject.global.CustomUserDetailService;
+import org.boot.reservationproject.global.userDetails.CustomUserDetailService;
 import org.boot.reservationproject.global.Role;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
 import org.boot.reservationproject.global.jwt.JwtTokenProvider;
 import org.boot.reservationproject.global.jwt.TokenDto;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,17 +34,17 @@ public class SellerService {
         , encodedPassword);
 
     // 2. 데이터 삽입
-    SellerEntity newSeller = SellerEntity.builder()
+    Seller newSeller = Seller.builder()
         .cpEmail(request.cpEmail())
         .cpPassword(encodedPassword)
-        .epPhoneNumber(request.epPhoneNumber())
+        .phoneNumber(request.phoneNumber())
         .epName(request.epName())
         .epCode(request.epCode())
         .cpName(request.cpName())
         .cpLocation(request.cpLocation())
         .role(Role.SELLER)
         .build();
-    SellerEntity sellerInDB = sellerRepository.save(newSeller);
+    Seller sellerInDB = sellerRepository.save(newSeller);
     log.info("SignUp Success? => Seller PK : {}"
         , sellerInDB.getId());
   }
@@ -58,7 +56,7 @@ public class SellerService {
       throw new BaseException(ErrorCode.BAD_REQUEST);
     }
 
-    SellerEntity seller =
+    Seller seller =
         sellerRepository.findByCpEmail(request.cpEmail())
             .orElseThrow(
                 () -> new BaseException(ErrorCode.USER_NOT_FOUND)

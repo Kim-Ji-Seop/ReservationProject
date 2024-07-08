@@ -1,5 +1,6 @@
 package org.boot.reservationproject.domain.facility.service;
 
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,8 @@ import org.boot.reservationproject.domain.facility.repository.PhotoRepository;
 import org.boot.reservationproject.domain.facility.repository.RoomRepository;
 import org.boot.reservationproject.domain.seller.entity.Seller;
 import org.boot.reservationproject.domain.seller.repository.SellerRepository;
+import org.boot.reservationproject.global.error.BaseException;
+import org.boot.reservationproject.global.error.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,7 +41,7 @@ public class FacilityService {
 
     // 1. 판매자 정보 가져오기
     Seller seller = sellerRepository.findByCpEmail(sellerEmail)
-        .orElseThrow(() -> new IllegalArgumentException("판매자를 찾을 수 없습니다."));
+        .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
     // 2. Facility(시설) 엔티티 생성 및 저장
     Facility facility = Facility.builder()
@@ -96,8 +99,11 @@ public class FacilityService {
       Long facilityIdx, Long roomIdx,
       List<MultipartFile> roomPhotos) throws IOException {
 
-    Facility facility = facilityRepository.findById(facilityIdx).orElseThrow();
-    Room room = roomRepository.findById(roomIdx).orElseThrow();
+    Facility facility = facilityRepository.findById(facilityIdx)
+        .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));
+
+    Room room = roomRepository.findById(roomIdx)
+        .orElseThrow(() -> new BaseException(ErrorCode.ROOM_NOT_FOUND));
 
     List<Photo> facilityPhotoEntities = new ArrayList<>();
     for(MultipartFile roomPhoto : roomPhotos){

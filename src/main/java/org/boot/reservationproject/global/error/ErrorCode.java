@@ -20,7 +20,13 @@ public enum ErrorCode {
 
   // Validation
   INVALID_VALUE(HttpStatus.BAD_REQUEST, 400, "잘못된 입력값입니다."),
-  USER_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR,500,"유저를 찾지 못했습니다.");
+  USER_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR,500,"유저를 찾지 못했습니다."),
+  FACILITY_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR,500,"시설을 찾지 못했습니다."),
+  ROOM_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR,500,"객실을 찾지 못했습니다."),
+
+  // File
+  FILE_MAX_SIZE_OVER(HttpStatus.BAD_REQUEST,400,"파일 크기가 너무 큽니다.");
+
 
 
   private final HttpStatus httpStatus;

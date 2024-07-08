@@ -1,31 +1,28 @@
 package org.boot.reservationproject.domain.facility.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.boot.reservationproject.global.BaseEntity;
+
 @Entity
-@Table(name = "accomodation_map_service")
-@NoArgsConstructor
+@Table(name = "subsidiary") // 서비스 및 부대시설
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
-public class FacilityService extends BaseEntity {
+public class Subsidiary extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "accomodation_id")
-  private Facility facility;
-
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "service_id")
-  private Service service;
+  @Column(name = "service_information",nullable = false, length = 50)
+  private String subsidiaryInformation; // 서비스 및 부대시설 정보
 }

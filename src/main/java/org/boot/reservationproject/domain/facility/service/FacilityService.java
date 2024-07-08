@@ -11,11 +11,15 @@ import org.boot.reservationproject.domain.facility.dto.request.RoomDetail;
 import org.boot.reservationproject.domain.facility.dto.response.RegisterFacilityResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisteredRoom;
 import org.boot.reservationproject.domain.facility.entity.Facility;
+import org.boot.reservationproject.domain.facility.entity.FacilitySubsidiary;
 import org.boot.reservationproject.domain.facility.entity.Photo;
 import org.boot.reservationproject.domain.facility.entity.Room;
+import org.boot.reservationproject.domain.facility.entity.Subsidiary;
 import org.boot.reservationproject.domain.facility.repository.FacilityRepository;
+import org.boot.reservationproject.domain.facility.repository.FacilitySubsidiaryRepository;
 import org.boot.reservationproject.domain.facility.repository.PhotoRepository;
 import org.boot.reservationproject.domain.facility.repository.RoomRepository;
+import org.boot.reservationproject.domain.facility.repository.SubsidiaryRepository;
 import org.boot.reservationproject.domain.seller.entity.Seller;
 import org.boot.reservationproject.domain.seller.repository.SellerRepository;
 import org.boot.reservationproject.global.error.BaseException;
@@ -32,6 +36,8 @@ public class FacilityService {
   private final FacilityRepository facilityRepository;
   private final RoomRepository roomRepository;
   private final PhotoRepository photoRepository;
+  private final SubsidiaryRepository subsidiaryRepository;
+  private final FacilitySubsidiaryRepository facilitySubsidiaryRepository;
 
   @Transactional
   public RegisterFacilityResponse registerFacility(
@@ -51,6 +57,7 @@ public class FacilityService {
         .region(request.region())
         .location(request.location())
         .regCancelRefund(request.regCancelRefund())
+
         .build();
     facility = facilityRepository.save(facility);
 
@@ -83,11 +90,23 @@ public class FacilityService {
     }
     rooms = roomRepository.saveAll(rooms);
 
-    for(Room room : rooms){
+    for(Room room : rooms){ // 응답값
       registeredRooms.add(new RegisteredRoom(room.getId(),room.getRoomName()));
     }
 
     // 6. Facility - Service 매핑 엔티티 생성 및 저장
+    List<FacilitySubsidiary> facilitySubsidiaries = new ArrayList<>();
+    for(String subsidiary : request.subsidiaries()){
+       Subsidiary subsidiaryOne = subsidiaryRepository.findBySubsidiaryInformation(subsidiary)
+           .orElseThrow(() -> new BaseException(ErrorCode.BAD_REQUEST));
+       FacilitySubsidiary facilitySubsidiary = FacilitySubsidiary.builder()
+           .facility(facility)
+           .subsidiary(subsidiaryOne)
+           .build();
+      facilitySubsidiaries.add(facilitySubsidiary);
+    }
+    facilitySubsidiaryRepository.saveAll(facilitySubsidiaries);
+
 
     return RegisterFacilityResponse.builder()
         .facilityIdx(facility.getId())

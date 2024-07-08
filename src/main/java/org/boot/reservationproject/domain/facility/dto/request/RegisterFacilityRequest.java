@@ -11,6 +11,6 @@ public record RegisterFacilityRequest(
   String region, // 지역
   String location, // 상세주소
   String regCancelRefund, // 취소 및 환불 규정
-  List<RoomDetail> rooms // 객실 상세 정보
-  // List<String> services // 서비스 및 부대시설 정보
+  List<RoomDetail> rooms, // 객실 상세 정보
+  List<String> subsidiaries // 서비스 및 부대시설 정보
 ){}

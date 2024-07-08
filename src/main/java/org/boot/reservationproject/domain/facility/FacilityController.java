@@ -25,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/facilities")
 @RequiredArgsConstructor
 public class FacilityController {
-  private final JwtTokenProvider jwtTokenProvider;
   private final FacilityService facilityService;
   @PostMapping(value = "/registeration", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<BaseResponse<RegisterFacilityResponse>> registerFacility(

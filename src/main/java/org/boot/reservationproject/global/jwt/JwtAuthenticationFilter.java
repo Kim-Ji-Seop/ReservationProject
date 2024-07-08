@@ -34,13 +34,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     String path = request.getServletPath();
     AntPathMatcher pathMatcher = new AntPathMatcher();
-    boolean shouldNotFilter = (
+    return (
             pathMatcher.match("/api/customers/registration", path) && request.getMethod().equals("POST") || // 회원가입 > 구매자
             pathMatcher.match("/api/sellers/registration", path) && request.getMethod().equals("POST") || // 회원가입 > 판매자
             pathMatcher.match("/api/customers/auth-email", path) && request.getMethod().equals("POST") || // 이메일 로그인 > 구매자
-            pathMatcher.match("/api/sellers/auth-email", path) && request.getMethod().equals("POST") // 이메일 로그인 > 판매자
+            pathMatcher.match("/api/sellers/auth-email", path) && request.getMethod().equals("POST") || // 이메일 로그인 > 판매자
+            pathMatcher.match("/api/admin/registration/service-options",path) && request.getMethod().equals("POST") // 관리자 부대시설 등록
     );
-    return shouldNotFilter;
   }
   @Override
   protected void doFilterInternal(HttpServletRequest request,
@@ -70,7 +70,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   }
 
   public String getJwtFromRequest(HttpServletRequest request) {
-    System.out.println(1);
     String bearerToken = request.getHeader("Authorization"); // Authorization 이름의 헤더의 내용을 가져온다.
     if (bearerToken.startsWith("Bearer ")) { // 헤더의 내용이 Bearer 로 시작하는지 확인
       return bearerToken.substring(7); // Bearer 이후의 내용이 토큰임. (AT or RT)

@@ -1,8 +1,6 @@
 package org.boot.reservationproject.domain.facility.dto.request;
 
-import jakarta.annotation.Nullable;
-import java.util.List;
-import org.springframework.web.multipart.MultipartFile;
+
 
 public record RoomDetail(
     String roomName, // 객실 이름

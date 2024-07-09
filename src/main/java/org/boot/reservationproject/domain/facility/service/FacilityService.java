@@ -59,7 +59,6 @@ public class FacilityService {
 
     // 2. 썸네일 사진 가져오기 (첫번째사진)
     MultipartFile thumbNailPhoto = facilityPhotos.get(0);
-    log.info("썸네일 사진 : {}",thumbNailPhoto.getOriginalFilename());
     // 3. Facility(시설) 엔티티 생성 및 저장
     Facility facility = Facility.builder()
         .seller(seller)
@@ -73,52 +72,53 @@ public class FacilityService {
         .previewFacilityPhotoData(thumbNailPhoto.getBytes())
         .previewFacilityPhotoName(thumbNailPhoto.getOriginalFilename())
         .build();
-    facility = facilityRepository.save(facility);
+    Facility finalFacility = facilityRepository.save(facility);
 
     // 4. Photo 엔티티 생성 및 시설 사진 저장
-    List<Photo> facilityPhotoEntities = new ArrayList<>();
-    for(MultipartFile facilityPhoto : facilityPhotos){
-      Photo photo = Photo.builder()
-          .facility(facility)
-          .photoData(facilityPhoto.getBytes())
-          .photoName(facilityPhoto.getOriginalFilename())
-          .build();
-      facilityPhotoEntities.add(photo);
-    }
+    List<Photo> facilityPhotoEntities = facilityPhotos.stream()
+        .map(facilityPhoto -> {
+          try {
+            return Photo.builder()
+                .facility(finalFacility)
+                .photoData(facilityPhoto.getBytes())
+                .photoName(facilityPhoto.getOriginalFilename())
+                .build();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        })
+        .collect(Collectors.toList());
     photoRepository.saveAll(facilityPhotoEntities);
 
     // 5. Room(객실) 엔티티 생성 및 저장
-    List<Room> rooms = new ArrayList<>();
-    List<RegisteredRoom> registeredRooms = new ArrayList<>(); // dto에 넣을 List 객체
-    for(RoomDetail roomDetail : request.rooms()){
-      Room room = Room.builder()
-          .facility(facility)
-          .roomName(roomDetail.roomName())
-          .minPeople(roomDetail.minPeople())
-          .maxPeople(roomDetail.maxPeople())
-          .checkInTime(roomDetail.checkInTime())
-          .checkOutTime(roomDetail.checkOutTime())
-          .price(roomDetail.price())
-          .build();
-      rooms.add(room);
-    }
+    List<Room> rooms = request.rooms().stream()
+        .map(roomDetail -> Room.builder()
+            .facility(finalFacility)
+            .roomName(roomDetail.roomName())
+            .minPeople(roomDetail.minPeople())
+            .maxPeople(roomDetail.maxPeople())
+            .checkInTime(roomDetail.checkInTime())
+            .checkOutTime(roomDetail.checkOutTime())
+            .price(roomDetail.price())
+            .build())
+        .collect(Collectors.toList());
     rooms = roomRepository.saveAll(rooms);
 
-    for(Room room : rooms){ // 응답값
-      registeredRooms.add(new RegisteredRoom(room.getId(),room.getRoomName()));
-    }
+    List<RegisteredRoom> registeredRooms = rooms.stream()
+        .map(room -> new RegisteredRoom(room.getId(), room.getRoomName()))
+        .collect(Collectors.toList());
 
     // 6. Facility - Service 매핑 엔티티 생성 및 저장
-    List<FacilitySubsidiary> facilitySubsidiaries = new ArrayList<>();
-    for(String subsidiary : request.subsidiaries()){
-       Subsidiary subsidiaryOne = subsidiaryRepository.findBySubsidiaryInformation(subsidiary)
-           .orElseThrow(() -> new BaseException(ErrorCode.BAD_REQUEST));
-       FacilitySubsidiary facilitySubsidiary = FacilitySubsidiary.builder()
-           .facility(facility)
-           .subsidiary(subsidiaryOne)
-           .build();
-      facilitySubsidiaries.add(facilitySubsidiary);
-    }
+    List<FacilitySubsidiary> facilitySubsidiaries = request.subsidiaries().stream()
+        .map(subsidiary -> {
+          Subsidiary subsidiaryOne = subsidiaryRepository.findBySubsidiaryInformation(subsidiary)
+              .orElseThrow(() -> new BaseException(ErrorCode.BAD_REQUEST));
+          return FacilitySubsidiary.builder()
+              .facility(finalFacility)
+              .subsidiary(subsidiaryOne)
+              .build();
+        })
+        .collect(Collectors.toList());
     facilitySubsidiaryRepository.saveAll(facilitySubsidiaries);
 
 
@@ -147,16 +147,21 @@ public class FacilityService {
         thumbNailPhoto.getBytes(),
         thumbNailPhoto.getOriginalFilename());
 
-    List<Photo> facilityPhotoEntities = new ArrayList<>();
-    for(MultipartFile roomPhoto : roomPhotos){
-      Photo photo = Photo.builder()
-          .facility(facility)
-          .room(room)
-          .photoData(roomPhoto.getBytes())
-          .photoName(roomPhoto.getOriginalFilename())
-          .build();
-      facilityPhotoEntities.add(photo);
-    }
+    List<Photo> facilityPhotoEntities = roomPhotos.stream()
+        .map(roomPhoto -> {
+          try {
+            return Photo.builder()
+                .facility(facility)
+                .room(room)
+                .photoData(roomPhoto.getBytes())
+                .photoName(roomPhoto.getOriginalFilename())
+                .build();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        })
+        .collect(Collectors.toList());
+
     photoRepository.saveAll(facilityPhotoEntities);
   }
 

@@ -2,12 +2,14 @@ package org.boot.reservationproject.domain.facility.service;
 
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
 import org.boot.reservationproject.domain.facility.dto.request.RoomDetail;
+import org.boot.reservationproject.domain.facility.dto.response.FacilitiesInformationPreviewResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisterFacilityResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisteredRoom;
 import org.boot.reservationproject.domain.facility.entity.Facility;
@@ -49,7 +51,10 @@ public class FacilityService {
     Seller seller = sellerRepository.findByCpEmail(sellerEmail)
         .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-    // 2. Facility(시설) 엔티티 생성 및 저장
+    // 2. 썸네일 사진 가져오기 (첫번째사진)
+    MultipartFile thumbNailPhoto = facilityPhotos.get(0);
+    log.info("썸네일 사진 : {}",thumbNailPhoto.getOriginalFilename());
+    // 3. Facility(시설) 엔티티 생성 및 저장
     Facility facility = Facility.builder()
         .seller(seller)
         .facilityName(request.name())
@@ -57,11 +62,14 @@ public class FacilityService {
         .region(request.region())
         .location(request.location())
         .regCancelRefund(request.regCancelRefund())
-
+        .averageRating(BigDecimal.valueOf(0.0))
+        .numberOfReviews(0)
+        .previewFacilityPhotoData(thumbNailPhoto.getBytes())
+        .previewFacilityPhotoName(thumbNailPhoto.getOriginalFilename())
         .build();
     facility = facilityRepository.save(facility);
 
-    // 3. Photo 엔티티 생성 및 시설 사진 저장
+    // 4. Photo 엔티티 생성 및 시설 사진 저장
     List<Photo> facilityPhotoEntities = new ArrayList<>();
     for(MultipartFile facilityPhoto : facilityPhotos){
       Photo photo = Photo.builder()
@@ -73,7 +81,7 @@ public class FacilityService {
     }
     photoRepository.saveAll(facilityPhotoEntities);
 
-    // 4. Room(객실) 엔티티 생성 및 저장
+    // 5. Room(객실) 엔티티 생성 및 저장
     List<Room> rooms = new ArrayList<>();
     List<RegisteredRoom> registeredRooms = new ArrayList<>(); // dto에 넣을 List 객체
     for(RoomDetail roomDetail : request.rooms()){
@@ -124,6 +132,15 @@ public class FacilityService {
     Room room = roomRepository.findById(roomIdx)
         .orElseThrow(() -> new BaseException(ErrorCode.ROOM_NOT_FOUND));
 
+    // 썸네일 사진 가져오기 (첫번째사진)
+    MultipartFile thumbNailPhoto = roomPhotos.get(0);
+
+    // 썸네일 사진 Room 엔티티에 Update Query
+    roomRepository.updatePreviewPhoto(
+        roomIdx,
+        thumbNailPhoto.getBytes(),
+        thumbNailPhoto.getOriginalFilename());
+
     List<Photo> facilityPhotoEntities = new ArrayList<>();
     for(MultipartFile roomPhoto : roomPhotos){
       Photo photo = Photo.builder()
@@ -135,5 +152,10 @@ public class FacilityService {
       facilityPhotoEntities.add(photo);
     }
     photoRepository.saveAll(facilityPhotoEntities);
+  }
+
+  public List<FacilitiesInformationPreviewResponse> getFacilitiesPreview() {
+
+    return null;
   }
 }

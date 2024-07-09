@@ -6,8 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,4 +47,17 @@ public class Facility extends BaseEntity {
 
   @Column(name = "reg_cancel_refund",nullable = false,length = 1500)
   private String regCancelRefund; // 취소 및 환불 규정
+
+  @Column(name = "avg_ragting", nullable = false, precision = 3, scale = 1)
+  private BigDecimal averageRating;
+
+  @Column(name = "number_of_reviews", nullable = false)
+  private int numberOfReviews;
+
+  @Lob
+  @Column(name = "preview_facility_photo_data", nullable = false, columnDefinition="longblob")
+  private byte[] previewFacilityPhotoData;
+
+  @Column(name = "preview_facility_photo_name", nullable = false, length = 30)
+  private String previewFacilityPhotoName;
 }

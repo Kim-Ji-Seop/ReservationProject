@@ -11,7 +11,7 @@ public record FacilitiesInformationPreviewResponse(
   BigDecimal averageRating,
   int numberOfReviews,
   int price,
-  String previewPhotoBase64
+  String previewPhoto // Base64 인코딩 String
 
 ) {
 

@@ -13,8 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
 import org.boot.reservationproject.domain.facility.dto.request.RoomDetail;
 import org.boot.reservationproject.domain.facility.dto.response.FacilitiesInformationPreviewResponse;
+import org.boot.reservationproject.domain.facility.dto.response.FacilityInformationDetailResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisterFacilityResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisteredRoom;
+import org.boot.reservationproject.domain.facility.dto.response.RoomPreviews;
 import org.boot.reservationproject.domain.facility.entity.Facility;
 import org.boot.reservationproject.domain.facility.entity.FacilitySubsidiary;
 import org.boot.reservationproject.domain.facility.entity.Photo;
@@ -32,6 +34,7 @@ import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -195,5 +198,32 @@ public class FacilityService {
         minPrice,
         previewPhotoBase64
     );
+  }
+
+  public FacilityInformationDetailResponse getFacilityDetail(Long facilityIdx) {
+    Facility facility = facilityRepository.findFacilityWithRooms(facilityIdx)
+        .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));
+
+    List<RoomPreviews> roomPreviewsList = facility.getRooms().stream()
+            .map(room -> new RoomPreviews(
+        room.getId(),
+        room.getMinPeople(),
+        room.getMaxPeople(),
+        room.getCheckInTime(),
+        room.getCheckOutTime(),
+        room.getPrice(),
+        Base64.getEncoder().encodeToString(room.getPreviewRoomPhotoData())
+    )).collect(Collectors.toList());
+
+    return FacilityInformationDetailResponse.builder()
+        .facilityName(facility.getFacilityName())
+        .category(facility.getCategory())
+        .region(facility.getRegion())
+        .location(facility.getLocation())
+        .regCancelRefund(facility.getRegCancelRefund())
+        .averageRating(facility.getAverageRating())
+        .numberOfReviews(facility.getNumberOfReviews())
+        .roomPreviewsList(roomPreviewsList)
+        .build();
   }
 }

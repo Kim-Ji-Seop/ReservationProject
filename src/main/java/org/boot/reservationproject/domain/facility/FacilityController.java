@@ -60,11 +60,12 @@ public class FacilityController {
   // 시설 상세보기 조회
   @GetMapping( "/details/{facilityIdx}")
   public ResponseEntity<BaseResponse<FacilityInformationDetailResponse>>
-  getFacilityDetail(@PathVariable Long facilityIdx){
+              getFacilityDetail(@PathVariable Long facilityIdx){
     FacilityInformationDetailResponse responses = facilityService.getFacilityDetail(facilityIdx);
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }
-
+  // 시설정보 수정
+  // 시설정보 삭제
   // 시설에 포함된 모든 사진들 조회
   // 시설에 포함된 모든 서비스 및 부대시설들 조회
 }

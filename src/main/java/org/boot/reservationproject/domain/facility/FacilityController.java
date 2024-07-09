@@ -49,8 +49,8 @@ public class FacilityController {
 
   @GetMapping( "/previews")
   public ResponseEntity<BaseResponse<List<FacilitiesInformationPreviewResponse>>>
-              getFacilitiesPreview(){
-    List<FacilitiesInformationPreviewResponse> responses = facilityService.getFacilitiesPreview();
+              getFacilitiesPreview(@RequestParam("category") String category){
+    List<FacilitiesInformationPreviewResponse> responses = facilityService.getFacilitiesPreview(category);
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }
 }

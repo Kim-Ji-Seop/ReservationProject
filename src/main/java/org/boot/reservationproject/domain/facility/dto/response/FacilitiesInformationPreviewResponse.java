@@ -11,7 +11,7 @@ public record FacilitiesInformationPreviewResponse(
   BigDecimal averageRating,
   int numberOfReviews,
   int price,
-  String previewPhoto
+  String previewPhotoBase64
 
 ) {
 

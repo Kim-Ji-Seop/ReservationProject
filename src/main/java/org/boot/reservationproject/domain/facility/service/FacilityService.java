@@ -4,7 +4,10 @@ package org.boot.reservationproject.domain.facility.service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
@@ -24,6 +27,7 @@ import org.boot.reservationproject.domain.facility.repository.RoomRepository;
 import org.boot.reservationproject.domain.facility.repository.SubsidiaryRepository;
 import org.boot.reservationproject.domain.seller.entity.Seller;
 import org.boot.reservationproject.domain.seller.repository.SellerRepository;
+import org.boot.reservationproject.global.Category;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
 import org.springframework.stereotype.Service;
@@ -154,8 +158,42 @@ public class FacilityService {
     photoRepository.saveAll(facilityPhotoEntities);
   }
 
-  public List<FacilitiesInformationPreviewResponse> getFacilitiesPreview() {
+  @Transactional(readOnly = true)
+  public List<FacilitiesInformationPreviewResponse> getFacilitiesPreview(String category) {
 
-    return null;
+    List<Facility> facilities;
+    if ("total".equalsIgnoreCase(category)) {
+      facilities = facilityRepository.findAll();
+    } else {
+      Category categoryEnum = Category.valueOf(category.toUpperCase());
+      facilities = facilityRepository.findByCategory(categoryEnum);
+    }
+
+    return facilities.stream()
+        .map(this::convertToDto)
+        .collect(Collectors.toList());
+  }
+  private FacilitiesInformationPreviewResponse convertToDto(Facility facility) {
+    String previewPhotoBase64 = facility.getPreviewFacilityPhotoData() != null
+        ? Base64.getEncoder().encodeToString(facility.getPreviewFacilityPhotoData()) : null;
+
+    int minPrice = facility.getRooms().stream()
+        .min(Comparator.comparingInt(Room::getPrice))
+        .map(Room::getPrice)
+        .orElse(0);
+    // 시설 > 객실 중 가장 싼 값의 가격을 preview로 배치시킴.
+    // customer가 시설 예약을 할 때, 선택된 날짜 범위내에 가능한 시설 > 객실들 중에서, 가장 저렴한 값을 내보내야 함
+    // 하지만 날짜 범위에 예약 가능한 객실이 없다면 해당 가격란은 "다른 날짜를 알아보세요" 라고 써지게 되어야 함
+
+    return new FacilitiesInformationPreviewResponse(
+        facility.getId(),
+        facility.getCategory(),
+        facility.getFacilityName(),
+        facility.getRegion(),
+        facility.getAverageRating(),
+        facility.getNumberOfReviews(),
+        minPrice,
+        previewPhotoBase64
+    );
   }
 }

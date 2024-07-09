@@ -2,6 +2,8 @@ package org.boot.reservationproject.domain.facility.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,7 +38,8 @@ public class Facility extends BaseEntity {
   @Column(name = "facility_name", nullable = false, length = 20)
   private String facilityName; // 시설 이름
 
-  @Column(name = "category",nullable = false)
+  @Enumerated(EnumType.STRING)
+  @Column(name = "category",nullable = false,length = 15)
   private Category category; // 시설 카테고리
 
   @Column(name = "region", nullable = false, length = 10)

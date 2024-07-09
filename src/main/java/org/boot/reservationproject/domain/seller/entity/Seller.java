@@ -50,7 +50,7 @@ public class Seller extends BaseEntity {
   private String cpLocation; // 법인 주소
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "role", nullable = false, length = 45)
+  @Column(name = "role", nullable = false, length = 15)
   private Role role;
 
   public CustomUserDetails toUserDetails() {

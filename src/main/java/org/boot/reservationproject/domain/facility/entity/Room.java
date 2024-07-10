@@ -6,9 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,5 +47,12 @@ public class Room extends BaseEntity {
 
   @Column(name = "price",nullable = false)
   private int price; // 가격
+
+  @Lob
+  @Column(name = "preview_room_photo_data", columnDefinition="longblob")
+  private byte[] previewRoomPhotoData;
+
+  @Column(name = "preview_room_photo_name", length = 30)
+  private String previewRoomPhotoName;
 
 }

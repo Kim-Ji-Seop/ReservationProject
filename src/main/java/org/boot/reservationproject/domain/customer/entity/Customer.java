@@ -42,11 +42,11 @@ public class Customer extends BaseEntity {
   private String birthday;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "role", nullable = false, length = 20)
+  @Column(name = "role", nullable = false, length = 15)
   private Role role;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "gender", nullable = false)
+  @Column(name = "gender", nullable = false, length = 8)
   private Gender gender;
 
   @Column(name = "name", length = 10)

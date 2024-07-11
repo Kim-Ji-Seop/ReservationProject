@@ -168,16 +168,18 @@ public class FacilityService {
   @Transactional(readOnly = true)
   public List<FacilitiesInformationPreviewResponse> getFacilitiesPreview(Category category) {
 
-    List<Facility> facilities;
-    if (category == Category.TOTAL) {
-      facilities = facilityRepository.findAll();
-    } else {
-      facilities = facilityRepository.findByCategory(category);
-    }
+    List<Facility> facilities = getFacilityList(category);
 
     return facilities.stream()
         .map(this::convertToDto)
         .collect(Collectors.toList());
+  }
+  private List<Facility> getFacilityList(Category category){
+    if (category == Category.TOTAL) {
+      return facilityRepository.findAll();
+    } else {
+      return facilityRepository.findByCategory(category);
+    }
   }
   private FacilitiesInformationPreviewResponse convertToDto(Facility facility) {
     String previewPhotoBase64 = facility.getPreviewFacilityPhotoData() != null

@@ -65,6 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       sendErrorResponse(response, ErrorCode.INVALID_TOKEN);
       return;
     }
+    log.info("여기까지오나?");
     filterChain.doFilter(request, response);
   }
 

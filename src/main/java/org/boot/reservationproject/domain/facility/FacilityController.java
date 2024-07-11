@@ -4,16 +4,20 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.facility.dto.response.FacilitiesInformationPreviewResponse;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
 import org.boot.reservationproject.domain.facility.dto.response.FacilityInformationDetailResponse;
+import org.boot.reservationproject.domain.facility.dto.response.FileUploadResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisterFacilityResponse;
 import org.boot.reservationproject.domain.facility.service.FacilityService;
 import org.boot.reservationproject.global.Category;
 import org.boot.reservationproject.global.convertor.CategoryConverter;
 import org.boot.reservationproject.global.error.BaseResponse;
+import org.boot.reservationproject.global.s3.S3Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,8 +35,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/facilities")
 @RequiredArgsConstructor
+@Slf4j
 public class FacilityController {
   private final FacilityService facilityService;
+  private final S3Service s3Service;
   @InitBinder
   public void initBinder(WebDataBinder binder) {
     binder.registerCustomEditor(Category.class, new CategoryConverter());
@@ -73,6 +79,20 @@ public class FacilityController {
               getFacilityDetail(@PathVariable Long facilityIdx){
     FacilityInformationDetailResponse responses = facilityService.getFacilityDetail(facilityIdx);
     return ResponseEntity.ok(new BaseResponse<>(responses));
+  }
+  // S3 테스트
+  @PostMapping(value = "/test/{user_id}/imageUrl", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<BaseResponse<FileUploadResponse>> uploadProfileUpload(
+      @PathVariable("user_id") Long userId,
+      @RequestPart("profilePhoto") MultipartFile multipartFile) throws IOException {
+    log.info("여기까지오나?-2");
+    try{
+      FileUploadResponse profile = s3Service.uploadFiles(userId, multipartFile, "profile");
+      System.out.println("profile = " + profile);
+      return ResponseEntity.ok(new BaseResponse<>(profile));
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
   }
   // 시설정보 수정
   // 시설정보 삭제

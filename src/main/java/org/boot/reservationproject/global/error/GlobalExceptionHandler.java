@@ -59,6 +59,13 @@ public class GlobalExceptionHandler {
         .status(INVALID_VALUE.getHttpStatus())
         .body(response);
   }
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<BaseResponse<?>> handleIllegalArgumentException(
+      IllegalArgumentException e, HttpServletRequest request) {
+    log.error("[IllegalArgumentException] url: {}", request.getRequestURL(), e);
+    return ResponseEntity.badRequest().body(new BaseResponse<>(ErrorCode.BAD_REQUEST));
+  }
+
   @ExceptionHandler(MissingServletRequestParameterException.class)
   public ResponseEntity<BaseResponse<?>> handleMissingServletRequestParameterException(
       MissingServletRequestParameterException e, HttpServletRequest request) {

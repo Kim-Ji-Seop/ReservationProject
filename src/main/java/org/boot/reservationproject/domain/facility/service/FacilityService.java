@@ -32,6 +32,8 @@ import org.boot.reservationproject.domain.seller.repository.SellerRepository;
 import org.boot.reservationproject.global.Category;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -166,19 +168,18 @@ public class FacilityService {
   }
 
   @Transactional(readOnly = true)
-  public List<FacilitiesInformationPreviewResponse> getFacilitiesPreview(Category category) {
+  public Page<FacilitiesInformationPreviewResponse>
+    getFacilitiesPreview(Category category, Pageable pageable) {
 
-    List<Facility> facilities = getFacilityList(category);
+    Page<Facility> facilities = getFacilityList(category,pageable);
 
-    return facilities.stream()
-        .map(this::convertToDto)
-        .collect(Collectors.toList());
+    return facilities.map(this::convertToDto);
   }
-  private List<Facility> getFacilityList(Category category){
+  private Page<Facility> getFacilityList(Category category, Pageable pageable){
     if (category == Category.TOTAL) {
-      return facilityRepository.findAll();
+      return facilityRepository.findAll(pageable);
     } else {
-      return facilityRepository.findByCategory(category);
+      return facilityRepository.findByCategory(category,pageable);
     }
   }
   private FacilitiesInformationPreviewResponse convertToDto(Facility facility) {

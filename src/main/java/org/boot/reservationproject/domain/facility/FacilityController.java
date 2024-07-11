@@ -12,6 +12,8 @@ import org.boot.reservationproject.domain.facility.service.FacilityService;
 import org.boot.reservationproject.global.Category;
 import org.boot.reservationproject.global.convertor.CategoryConverter;
 import org.boot.reservationproject.global.error.BaseResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -59,9 +61,9 @@ public class FacilityController {
 
   // 시설들 카테고리별 조회
   @GetMapping( "/previews")
-  public ResponseEntity<BaseResponse<List<FacilitiesInformationPreviewResponse>>>
-              getFacilitiesPreview(@RequestParam("category") Category category){
-    List<FacilitiesInformationPreviewResponse> responses = facilityService.getFacilitiesPreview(category);
+  public ResponseEntity<BaseResponse<Page<FacilitiesInformationPreviewResponse>>>
+              getFacilitiesPreview(@RequestParam("category") Category category, Pageable pageable){
+    Page<FacilitiesInformationPreviewResponse> responses = facilityService.getFacilitiesPreview(category,pageable);
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }
 

@@ -9,11 +9,15 @@ import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityR
 import org.boot.reservationproject.domain.facility.dto.response.FacilityInformationDetailResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisterFacilityResponse;
 import org.boot.reservationproject.domain.facility.service.FacilityService;
+import org.boot.reservationproject.global.Category;
+import org.boot.reservationproject.global.convertor.CategoryConverter;
 import org.boot.reservationproject.global.error.BaseResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class FacilityController {
   private final FacilityService facilityService;
+  @InitBinder
+  public void initBinder(WebDataBinder binder) {
+    binder.registerCustomEditor(Category.class, new CategoryConverter());
+  }
   @PostMapping(value = "/registration", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<BaseResponse<RegisterFacilityResponse>> registerFacility(
       @Valid @RequestPart("facilityRequest") RegisterFacilityRequest request, // json data
@@ -52,7 +60,7 @@ public class FacilityController {
   // 시설들 카테고리별 조회
   @GetMapping( "/previews")
   public ResponseEntity<BaseResponse<List<FacilitiesInformationPreviewResponse>>>
-              getFacilitiesPreview(@RequestParam("category") String category){
+              getFacilitiesPreview(@RequestParam("category") Category category){
     List<FacilitiesInformationPreviewResponse> responses = facilityService.getFacilitiesPreview(category);
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }

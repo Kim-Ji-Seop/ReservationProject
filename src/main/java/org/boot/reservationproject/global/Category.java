@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Category {
+  TOTAL("전체"),
   MOTEL("모텔"),
   HOTEL("호텔"),
   RESORT("리조트"),

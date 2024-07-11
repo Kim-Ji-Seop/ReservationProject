@@ -166,14 +166,13 @@ public class FacilityService {
   }
 
   @Transactional(readOnly = true)
-  public List<FacilitiesInformationPreviewResponse> getFacilitiesPreview(String category) {
+  public List<FacilitiesInformationPreviewResponse> getFacilitiesPreview(Category category) {
 
     List<Facility> facilities;
-    if ("total".equalsIgnoreCase(category)) {
+    if (category == Category.TOTAL) {
       facilities = facilityRepository.findAll();
     } else {
-      Category categoryEnum = Category.valueOf(category.toUpperCase());
-      facilities = facilityRepository.findByCategory(categoryEnum);
+      facilities = facilityRepository.findByCategory(category);
     }
 
     return facilities.stream()

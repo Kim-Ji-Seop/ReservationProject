@@ -3,15 +3,12 @@ package org.boot.reservationproject.domain.facility.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
-import org.boot.reservationproject.domain.facility.dto.request.RoomDetail;
 import org.boot.reservationproject.domain.facility.dto.response.FacilitiesInformationPreviewResponse;
 import org.boot.reservationproject.domain.facility.dto.response.FacilityInformationDetailResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisterFacilityResponse;

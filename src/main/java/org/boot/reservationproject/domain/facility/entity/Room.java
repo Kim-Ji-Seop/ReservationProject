@@ -48,9 +48,8 @@ public class Room extends BaseEntity {
   @Column(name = "price",nullable = false)
   private int price; // 가격
 
-  @Lob
-  @Column(name = "preview_room_photo_data", columnDefinition="longblob")
-  private byte[] previewRoomPhotoData;
+  @Column(name = "preview_room_photo_url", length = 300)
+  private String previewRoomPhotoUrl;
 
   @Column(name = "preview_room_photo_name", length = 30)
   private String previewRoomPhotoName;

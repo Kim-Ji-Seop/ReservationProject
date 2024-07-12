@@ -23,23 +23,32 @@ public class S3Service {
   @Value("${cloud.aws.s3.bucket}")
   private String bucket;
   @Transactional
-  public FileUploadResponse uploadFiles(Long userId, MultipartFile multipartFile, String dirName) throws IOException {
-    log.info("여기까지오나?-3");
+  public void uploadFiles(Long userId, MultipartFile multipartFile, String dirName) throws IOException {
     File uploadFile = convert(multipartFile)
         .orElseThrow(() -> new IllegalArgumentException("Error: MultipartFile -> File로 전환이 실패했습니다."));
-    log.info("여기까지오나?-7 {}", uploadFile.getPath());
-    return upload(userId, uploadFile, dirName);
+    upload(userId, uploadFile, dirName);
   }
   @Transactional
-  public FileUploadResponse upload(Long userId, File uploadFile, String filePath) {
+  public void upload(Long userId, File uploadFile, String filePath) {
     String fileName = filePath + "/" + uploadFile.getName(); // S3에 저장된 파일 이름
-    log.info("여기까지오나?-8 {}", fileName);
     String uploadImageUrl = putS3(uploadFile, fileName); // S3로 업로드
     log.info("uploadImageUrl = " + uploadImageUrl);
     removeNewFile(uploadFile);
+  }
+  @Transactional
+  public String uploadFileAndGetUrl(MultipartFile multipartFile, String dirName) throws IOException {
+    File uploadFile = convert(multipartFile)
+        .orElseThrow(() -> new IllegalArgumentException("Error: MultipartFile -> File로 전환이 실패했습니다."));
+    return uploadAndGetUrl(uploadFile, dirName);
+  }
 
-    //FileUploadResponse DTO로 반환해준다.
-    return new FileUploadResponse(fileName, uploadImageUrl);
+  @Transactional
+  public String uploadAndGetUrl(File uploadFile, String filePath) {
+    String fileName = filePath + "/" + uploadFile.getName(); // S3에 저장된 파일 이름
+    String uploadImageUrl = putS3(uploadFile, fileName); // S3로 업로드
+    log.info("uploadImageUrl = " + uploadImageUrl);
+    removeNewFile(uploadFile);
+    return uploadImageUrl;
   }
 
   // S3로 업로드
@@ -65,11 +74,8 @@ public class S3Service {
 
   // 로컬에 파일 업로드 하기
   private Optional<File> convert(MultipartFile file) throws IOException {
-    log.info("여기까지오나?-4");
     File convertFile =  new File(System.getProperty("user.dir") + "/" + file.getOriginalFilename());
-    log.info("여기까지오나?-5 {}",convertFile.getName());
     if(convertFile.createNewFile()) {
-      log.info("여기까지오나?-6");
       try (FileOutputStream fos = new FileOutputStream(convertFile)) {
         fos.write(file.getBytes());
       }

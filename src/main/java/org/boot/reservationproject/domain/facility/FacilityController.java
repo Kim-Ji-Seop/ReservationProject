@@ -80,20 +80,7 @@ public class FacilityController {
     FacilityInformationDetailResponse responses = facilityService.getFacilityDetail(facilityIdx);
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }
-  // S3 테스트
-  @PostMapping(value = "/test/{user_id}/imageUrl", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<BaseResponse<FileUploadResponse>> uploadProfileUpload(
-      @PathVariable("user_id") Long userId,
-      @RequestPart("profilePhoto") MultipartFile multipartFile) throws IOException {
-    log.info("여기까지오나?-2");
-    try{
-      FileUploadResponse profile = s3Service.uploadFiles(userId, multipartFile, "profile");
-      System.out.println("profile = " + profile);
-      return ResponseEntity.ok(new BaseResponse<>(profile));
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-    }
-  }
+  // 객실 추가하기 - 시설정보 수정에 넣을지?
   // 시설정보 수정
   // 시설정보 삭제
   // 시설에 포함된 모든 사진들 조회

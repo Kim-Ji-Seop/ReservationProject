@@ -7,7 +7,7 @@ public record RoomPreviews(
     String checkInTime,
     String checkOutTime,
     int price,
-    String thumbNailPhoto // Base64 인코딩 String
+    String thumbNailPhoto
 ) {
 
 }

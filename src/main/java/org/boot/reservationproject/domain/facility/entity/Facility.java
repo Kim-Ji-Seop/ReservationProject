@@ -61,9 +61,8 @@ public class Facility extends BaseEntity {
   @Column(name = "number_of_reviews", nullable = false)
   private int numberOfReviews;
 
-  @Lob
-  @Column(name = "preview_facility_photo_data", nullable = false, columnDefinition="longblob")
-  private byte[] previewFacilityPhotoData;
+  @Column(name = "preview_facility_photo_url", nullable = false, length = 300)
+  private String previewFacilityPhotoUrl;
 
   @Column(name = "preview_facility_photo_name", nullable = false, length = 30)
   private String previewFacilityPhotoName;

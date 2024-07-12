@@ -232,6 +232,7 @@ public class FacilityService {
     List<RoomPreviews> roomPreviewsList = facility.getRooms().stream()
             .map(room -> new RoomPreviews(
         room.getId(),
+        room.getRoomName(),
         room.getMinPeople(),
         room.getMaxPeople(),
         room.getCheckInTime(),
@@ -239,6 +240,9 @@ public class FacilityService {
         room.getPrice(),
         room.getPreviewRoomPhotoUrl()
     )).collect(Collectors.toList());
+
+    List<String> subsidiaryDetails = facilitySubsidiaryRepository.findSubsidiariesByFacilityIdx(facilityIdx)
+        .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));
 
     return FacilityInformationDetailResponse.builder()
         .facilityName(facility.getFacilityName())
@@ -249,6 +253,7 @@ public class FacilityService {
         .averageRating(facility.getAverageRating())
         .numberOfReviews(facility.getNumberOfReviews())
         .roomPreviewsList(roomPreviewsList)
+        .subsidiaryDetails(subsidiaryDetails)
         .build();
   }
 }

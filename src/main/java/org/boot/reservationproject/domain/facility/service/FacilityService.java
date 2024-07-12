@@ -32,6 +32,9 @@ import org.boot.reservationproject.domain.seller.repository.SellerRepository;
 import org.boot.reservationproject.global.Category;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
+import org.boot.reservationproject.global.s3.S3Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +49,7 @@ public class FacilityService {
   private final PhotoRepository photoRepository;
   private final SubsidiaryRepository subsidiaryRepository;
   private final FacilitySubsidiaryRepository facilitySubsidiaryRepository;
+  private final S3Service s3Service;
 
   @Transactional
   public RegisterFacilityResponse registerFacility(
@@ -59,6 +63,11 @@ public class FacilityService {
 
     // 2. 썸네일 사진 가져오기 (첫번째사진)
     MultipartFile thumbNailPhoto = facilityPhotos.get(0);
+    String thumbNailPhotoUrl =
+        s3Service.uploadFileAndGetUrl(
+            thumbNailPhoto,
+            "facilities/" + request.category().name().toLowerCase() + "/" + request.name() + "/fac-photo/thumb-nail");
+
     // 3. Facility(시설) 엔티티 생성 및 저장
     Facility facility = Facility.builder()
         .seller(seller)
@@ -69,7 +78,7 @@ public class FacilityService {
         .regCancelRefund(request.regCancelRefund())
         .averageRating(BigDecimal.valueOf(0.0))
         .numberOfReviews(0)
-        .previewFacilityPhotoData(thumbNailPhoto.getBytes())
+        .previewFacilityPhotoUrl(thumbNailPhotoUrl)
         .previewFacilityPhotoName(thumbNailPhoto.getOriginalFilename())
         .build();
     Facility finalFacility = facilityRepository.save(facility);
@@ -78,9 +87,12 @@ public class FacilityService {
     List<Photo> facilityPhotoEntities = facilityPhotos.stream()
         .map(facilityPhoto -> {
           try {
+            String photoUrl = s3Service.uploadFileAndGetUrl(
+                facilityPhoto,
+                "facilities/" + request.category().name().toLowerCase() + "/" + request.name() + "/fac-photo");
             return Photo.builder()
                 .facility(finalFacility)
-                .photoData(facilityPhoto.getBytes())
+                .photoUrl(photoUrl)
                 .photoName(facilityPhoto.getOriginalFilename())
                 .build();
           } catch (IOException e) {
@@ -140,20 +152,30 @@ public class FacilityService {
 
     // 썸네일 사진 가져오기 (첫번째사진)
     MultipartFile thumbNailPhoto = roomPhotos.get(0);
+    String thumbNailPhotoUrl = s3Service.uploadFileAndGetUrl(
+        thumbNailPhoto,
+        "facilities/" + facility.getCategory().toString().toLowerCase()
+            + "/" + facility.getFacilityName() + "/room" + roomIdx + "/thumb-nail"
+    );
 
     // 썸네일 사진 Room 엔티티에 Update Query
     roomRepository.updatePreviewPhoto(
         roomIdx,
-        thumbNailPhoto.getBytes(),
+        thumbNailPhotoUrl,
         thumbNailPhoto.getOriginalFilename());
 
     List<Photo> facilityPhotoEntities = roomPhotos.stream()
         .map(roomPhoto -> {
           try {
+            String roomPhotoUrl = s3Service.uploadFileAndGetUrl(
+                roomPhoto,
+                "facilities/" + facility.getCategory().toString().toLowerCase()
+                    + "/" + facility.getFacilityName() + "/room" + roomIdx
+            );
             return Photo.builder()
                 .facility(facility)
                 .room(room)
-                .photoData(roomPhoto.getBytes())
+                .photoUrl(roomPhotoUrl)
                 .photoName(roomPhoto.getOriginalFilename())
                 .build();
           } catch (IOException e) {
@@ -166,23 +188,22 @@ public class FacilityService {
   }
 
   @Transactional(readOnly = true)
-  public List<FacilitiesInformationPreviewResponse> getFacilitiesPreview(String category) {
+  public Page<FacilitiesInformationPreviewResponse>
+    getFacilitiesPreview(Category category, Pageable pageable) {
 
-    List<Facility> facilities;
-    if ("total".equalsIgnoreCase(category)) {
-      facilities = facilityRepository.findAll();
+    Page<Facility> facilities = getFacilityList(category,pageable);
+
+    return facilities.map(this::convertToDto);
+  }
+  private Page<Facility> getFacilityList(Category category, Pageable pageable){
+    if (category == Category.TOTAL) {
+      return facilityRepository.findAll(pageable);
     } else {
-      Category categoryEnum = Category.valueOf(category.toUpperCase());
-      facilities = facilityRepository.findByCategory(categoryEnum);
+      return facilityRepository.findByCategory(category,pageable);
     }
-
-    return facilities.stream()
-        .map(this::convertToDto)
-        .collect(Collectors.toList());
   }
   private FacilitiesInformationPreviewResponse convertToDto(Facility facility) {
-    String previewPhotoBase64 = facility.getPreviewFacilityPhotoData() != null
-        ? Base64.getEncoder().encodeToString(facility.getPreviewFacilityPhotoData()) : null;
+    String previewPhoto = facility.getPreviewFacilityPhotoUrl();
 
     int minPrice = facility.getRooms().stream()
         .min(Comparator.comparingInt(Room::getPrice))
@@ -200,7 +221,7 @@ public class FacilityService {
         facility.getAverageRating(),
         facility.getNumberOfReviews(),
         minPrice,
-        previewPhotoBase64
+        previewPhoto
     );
   }
 
@@ -211,13 +232,17 @@ public class FacilityService {
     List<RoomPreviews> roomPreviewsList = facility.getRooms().stream()
             .map(room -> new RoomPreviews(
         room.getId(),
+        room.getRoomName(),
         room.getMinPeople(),
         room.getMaxPeople(),
         room.getCheckInTime(),
         room.getCheckOutTime(),
         room.getPrice(),
-        Base64.getEncoder().encodeToString(room.getPreviewRoomPhotoData())
+        room.getPreviewRoomPhotoUrl()
     )).collect(Collectors.toList());
+
+    List<String> subsidiaryDetails = facilitySubsidiaryRepository.findSubsidiariesByFacilityIdx(facilityIdx)
+        .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));
 
     return FacilityInformationDetailResponse.builder()
         .facilityName(facility.getFacilityName())
@@ -228,6 +253,7 @@ public class FacilityService {
         .averageRating(facility.getAverageRating())
         .numberOfReviews(facility.getNumberOfReviews())
         .roomPreviewsList(roomPreviewsList)
+        .subsidiaryDetails(subsidiaryDetails)
         .build();
   }
 }

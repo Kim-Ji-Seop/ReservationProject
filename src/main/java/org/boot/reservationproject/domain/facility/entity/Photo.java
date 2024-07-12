@@ -39,9 +39,8 @@ public class Photo extends BaseEntity {
   @JoinColumn(name = "review_id")
   private Review review; // 리뷰
 
-  @Lob
-  @Column(name = "photo_data", nullable = false, columnDefinition="longblob")
-  private byte[] photoData;
+  @Column(name = "photo_url", nullable = false, length = 300)
+  private String photoUrl;
 
   @Column(name = "photo_name", nullable = false, length = 30)
   private String photoName;

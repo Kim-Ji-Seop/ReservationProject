@@ -11,10 +11,10 @@ public interface RoomRepository extends JpaRepository<Room,Long> {
   @Modifying
   @Transactional
   @Query("UPDATE Room r "
-      + "SET r.previewRoomPhotoData = :previewRoomPhotoData, r.previewRoomPhotoName = :previewRoomPhotoName "
+      + "SET r.previewRoomPhotoUrl = :previewRoomPhotoUrl, r.previewRoomPhotoName = :previewRoomPhotoName "
       + "WHERE r.id = :roomId")
   void updatePreviewPhoto(
       @Param("roomId") Long roomId,
-      @Param("previewRoomPhotoData") byte[] previewPhotoData,
+      @Param("previewRoomPhotoUrl") String previewRoomPhotoUrl,
       @Param("previewRoomPhotoName") String previewPhotoName);
 }

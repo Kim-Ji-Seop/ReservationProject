@@ -13,7 +13,8 @@ public record FacilityInformationDetailResponse(
     String regCancelRefund,
     BigDecimal averageRating,
     int numberOfReviews,
-    List<RoomPreviews> roomPreviewsList
+    List<RoomPreviews> roomPreviewsList,
+    List<String> subsidiaryDetails
 
 ) {
 

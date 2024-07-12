@@ -4,16 +4,26 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.facility.dto.response.FacilitiesInformationPreviewResponse;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
 import org.boot.reservationproject.domain.facility.dto.response.FacilityInformationDetailResponse;
+import org.boot.reservationproject.domain.facility.dto.response.FileUploadResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisterFacilityResponse;
 import org.boot.reservationproject.domain.facility.service.FacilityService;
+import org.boot.reservationproject.global.Category;
+import org.boot.reservationproject.global.convertor.CategoryConverter;
 import org.boot.reservationproject.global.error.BaseResponse;
+import org.boot.reservationproject.global.s3.S3Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,8 +35,14 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/facilities")
 @RequiredArgsConstructor
+@Slf4j
 public class FacilityController {
   private final FacilityService facilityService;
+  private final S3Service s3Service;
+  @InitBinder
+  public void initBinder(WebDataBinder binder) {
+    binder.registerCustomEditor(Category.class, new CategoryConverter());
+  }
   @PostMapping(value = "/registration", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<BaseResponse<RegisterFacilityResponse>> registerFacility(
       @Valid @RequestPart("facilityRequest") RegisterFacilityRequest request, // json data
@@ -51,9 +67,9 @@ public class FacilityController {
 
   // 시설들 카테고리별 조회
   @GetMapping( "/previews")
-  public ResponseEntity<BaseResponse<List<FacilitiesInformationPreviewResponse>>>
-              getFacilitiesPreview(@RequestParam("category") String category){
-    List<FacilitiesInformationPreviewResponse> responses = facilityService.getFacilitiesPreview(category);
+  public ResponseEntity<BaseResponse<Page<FacilitiesInformationPreviewResponse>>>
+              getFacilitiesPreview(@RequestParam("category") Category category, Pageable pageable){
+    Page<FacilitiesInformationPreviewResponse> responses = facilityService.getFacilitiesPreview(category,pageable);
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }
 
@@ -64,6 +80,7 @@ public class FacilityController {
     FacilityInformationDetailResponse responses = facilityService.getFacilityDetail(facilityIdx);
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }
+  // 객실 추가하기 - 시설정보 수정에 넣을지?
   // 시설정보 수정
   // 시설정보 삭제
   // 시설에 포함된 모든 사진들 조회

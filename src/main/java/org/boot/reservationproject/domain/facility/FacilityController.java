@@ -8,16 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.facility.dto.response.FacilitiesInformationPreviewResponse;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
 import org.boot.reservationproject.domain.facility.dto.response.FacilityInformationDetailResponse;
-import org.boot.reservationproject.domain.facility.dto.response.FileUploadResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisterFacilityResponse;
 import org.boot.reservationproject.domain.facility.service.FacilityService;
 import org.boot.reservationproject.global.Category;
 import org.boot.reservationproject.global.convertor.CategoryConverter;
 import org.boot.reservationproject.global.error.BaseResponse;
-import org.boot.reservationproject.global.s3.S3Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,7 +35,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class FacilityController {
   private final FacilityService facilityService;
-  private final S3Service s3Service;
   @InitBinder
   public void initBinder(WebDataBinder binder) {
     binder.registerCustomEditor(Category.class, new CategoryConverter());
@@ -85,4 +81,5 @@ public class FacilityController {
   // 시설정보 삭제
   // 시설에 포함된 모든 사진들 조회
   // 시설에 포함된 모든 서비스 및 부대시설들 조회
+  // 시설, 객실들 사진 전체 조회
 }

@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
 import org.boot.reservationproject.domain.facility.dto.response.FacilitiesInformationPreviewResponse;
+import org.boot.reservationproject.domain.facility.dto.response.FacilitiesPageResponse;
+import org.boot.reservationproject.domain.facility.dto.response.FacilitiesPageResponse.PageMetadata;
 import org.boot.reservationproject.domain.facility.dto.response.FacilityInformationDetailResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisterFacilityResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisteredRoom;
@@ -30,6 +32,8 @@ import org.boot.reservationproject.global.Category;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
 import org.boot.reservationproject.global.s3.S3Service;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -49,6 +53,7 @@ public class FacilityService {
   private final S3Service s3Service;
 
   @Transactional
+  @CacheEvict(value = "facility", allEntries = true)
   public RegisterFacilityResponse registerFacility(
       RegisterFacilityRequest request,
       List<MultipartFile> facilityPhotos,
@@ -137,6 +142,7 @@ public class FacilityService {
         .build();
   }
 
+  @CacheEvict(value = "facility", allEntries = true)
   public void registerRoomPhotos(
       Long facilityIdx, Long roomIdx,
       List<MultipartFile> roomPhotos) throws IOException {
@@ -185,12 +191,28 @@ public class FacilityService {
   }
 
   @Transactional(readOnly = true)
-  public Page<FacilitiesInformationPreviewResponse>
+  @Cacheable(value = "facility", key = "#category.name() + '-' + #pageable.pageNumber")
+  public FacilitiesPageResponse
     getFacilitiesPreview(Category category, Pageable pageable) {
 
     Page<Facility> facilities = getFacilityList(category,pageable);
 
-    return facilities.map(this::convertToDto);
+    List<FacilitiesInformationPreviewResponse> content = facilities.getContent().stream()
+        .map(this::convertToDto)
+        .collect(Collectors.toList());
+
+    PageMetadata metadata = new PageMetadata(
+        facilities.getNumber(),
+        facilities.getSize(),
+        facilities.getTotalElements(),
+        facilities.getTotalPages(),
+        facilities.isLast(),
+        facilities.isFirst(),
+        facilities.getNumberOfElements(),
+        facilities.isEmpty()
+    );
+
+    return new FacilitiesPageResponse(content, metadata);
   }
   private Page<Facility> getFacilityList(Category category, Pageable pageable){
     if (category == Category.TOTAL) {
@@ -209,19 +231,20 @@ public class FacilityService {
     // 시설 > 객실 중 가장 싼 값의 가격을 preview로 배치시킴.
     // customer가 시설 예약을 할 때, 선택된 날짜 범위내에 가능한 시설 > 객실들 중에서, 가장 저렴한 값을 내보내야 함
     // 하지만 날짜 범위에 예약 가능한 객실이 없다면 해당 가격란은 "다른 날짜를 알아보세요" 라고 써지게 되어야 함
-
-    return new FacilitiesInformationPreviewResponse(
-        facility.getId(),
-        facility.getCategory(),
-        facility.getFacilityName(),
-        facility.getRegion(),
-        facility.getAverageRating(),
-        facility.getNumberOfReviews(),
-        minPrice,
-        previewPhoto
-    );
+    return FacilitiesInformationPreviewResponse.builder()
+        .facilityIdx(facility.getId())
+        .category(facility.getCategory())
+        .name(facility.getFacilityName())
+        .region(facility.getRegion())
+        .averageRating(facility.getAverageRating())
+        .numberOfReviews(facility.getNumberOfReviews())
+        .price(minPrice)
+        .previewPhoto(previewPhoto)
+        .build();
   }
 
+  @Transactional(readOnly = true)
+  @Cacheable(value = "facilityDetails", key = "#facilityIdx")
   public FacilityInformationDetailResponse getFacilityDetail(Long facilityIdx) {
     Facility facility = facilityRepository.findFacilityWithRooms(facilityIdx)
         .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));

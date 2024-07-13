@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.facility.dto.response.FacilitiesInformationPreviewResponse;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
+import org.boot.reservationproject.domain.facility.dto.response.FacilitiesPageResponse;
 import org.boot.reservationproject.domain.facility.dto.response.FacilityInformationDetailResponse;
 import org.boot.reservationproject.domain.facility.dto.response.RegisterFacilityResponse;
 import org.boot.reservationproject.domain.facility.service.FacilityService;
@@ -63,9 +64,9 @@ public class FacilityController {
 
   // 시설들 카테고리별 조회
   @GetMapping( "/previews")
-  public ResponseEntity<BaseResponse<Page<FacilitiesInformationPreviewResponse>>>
+  public ResponseEntity<BaseResponse<FacilitiesPageResponse>>
               getFacilitiesPreview(@RequestParam("category") Category category, Pageable pageable){
-    Page<FacilitiesInformationPreviewResponse> responses = facilityService.getFacilitiesPreview(category,pageable);
+    FacilitiesPageResponse responses = facilityService.getFacilitiesPreview(category,pageable);
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }
 

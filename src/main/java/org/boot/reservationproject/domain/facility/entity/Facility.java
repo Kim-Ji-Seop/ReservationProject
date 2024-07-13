@@ -13,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,11 +22,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.boot.reservationproject.domain.search.document.FacilityDocument;
 import org.boot.reservationproject.domain.seller.entity.Seller;
 import org.boot.reservationproject.global.BaseEntity;
 import org.boot.reservationproject.global.Category;
+import org.boot.reservationproject.global.elastic_search.sync.FacilityEventListener;
 
 @Entity
+@EntityListeners(FacilityEventListener.class)
 @Table(name = "facility")
 @Builder
 @Getter
@@ -69,4 +74,9 @@ public class Facility extends BaseEntity {
 
   @OneToMany(mappedBy = "facility", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private List<Room> rooms;
+
+  @PrePersist
+  @PreUpdate
+  public void triggerSync() {
+  }
 }

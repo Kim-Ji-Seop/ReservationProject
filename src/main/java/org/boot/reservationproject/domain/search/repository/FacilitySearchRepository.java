@@ -11,10 +11,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FacilitySearchRepository extends ElasticsearchRepository<FacilityDocument, Long> {
-  Optional<FacilityDocument> findById(Long id);
 
-  List<FacilityDocument> findByFacilityName(String facilityName);
-  @Query("{\"bool\": { \"must\": [ \n" +
-      "    {\"wildcard\": {\"facilityName\": \"*?0*\"}}]}}")
-  Page<FacilityDocument> findByFacilityNameContainsIgnoreCase(String facilityName, Pageable pageable);
 }

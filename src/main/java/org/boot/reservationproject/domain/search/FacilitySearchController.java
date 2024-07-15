@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.boot.reservationproject.domain.search.document.FacilityDocument;
 import org.boot.reservationproject.domain.search.dto.SearchKeywordResponse;
 import org.boot.reservationproject.domain.search.service.FacilitySearchService;
+import org.boot.reservationproject.global.error.BaseResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,22 +29,14 @@ public class FacilitySearchController {
 
 
   @GetMapping
-  public ResponseEntity<List<SearchKeywordResponse>> searchFacilities(@RequestParam("keyword") String keyword) throws IOException {
-    try {
-      List<SearchKeywordResponse> results = facilitySearchService.searchByKeyword(keyword);
-      return ResponseEntity.ok(results);
-    } catch (IOException e) {
-      return ResponseEntity.status(500).build();
-    }
+  public ResponseEntity<BaseResponse<List<SearchKeywordResponse>>> searchFacilities(@RequestParam("keyword") String keyword) throws IOException {
+    List<SearchKeywordResponse> results = facilitySearchService.searchByKeyword(keyword);
+    return ResponseEntity.ok(new BaseResponse<>(results));
   }
 
   @GetMapping("/autocomplete")
-  public ResponseEntity<List<String>> autocompleteFacilities(@RequestParam("keyword") String keyword) throws IOException {
-    try {
-      List<String> results = facilitySearchService.autocompleteSearch(keyword);
-      return ResponseEntity.ok(results);
-    } catch (IOException e) {
-      return ResponseEntity.status(500).build();
-    }
+  public ResponseEntity<BaseResponse<List<String>>> autocompleteFacilities(@RequestParam("keyword") String keyword) throws IOException {
+    List<String> results = facilitySearchService.autocompleteSearch(keyword);
+    return ResponseEntity.ok(new BaseResponse<>(results));
   }
 }

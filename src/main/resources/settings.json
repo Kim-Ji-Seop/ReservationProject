@@ -29,13 +29,6 @@
           "filter": [
             "lowercase"
           ]
-        },
-        "standard_analyzer": {
-          "type": "custom",
-          "tokenizer": "standard",
-          "filter": [
-            "lowercase"
-          ]
         }
       }
     }
@@ -71,6 +64,48 @@
         "type": "text",
         "analyzer": "edge_ngram_analyzer",
         "search_analyzer": "edge_ngram_analyzer"
+      },
+      "category": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "regCancelRefund": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "averageRating": {
+        "type": "float"
+      },
+      "numberOfReviews": {
+        "type": "long"
+      },
+      "previewFacilityPhotoUrl": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "previewFacilityPhotoName": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
       }
     }
   }

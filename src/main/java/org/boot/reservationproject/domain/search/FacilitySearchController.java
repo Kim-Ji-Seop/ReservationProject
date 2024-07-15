@@ -36,4 +36,14 @@ public class FacilitySearchController {
       return ResponseEntity.status(500).build();
     }
   }
+
+  @GetMapping("/autocomplete")
+  public ResponseEntity<List<String>> autocompleteFacilities(@RequestParam("keyword") String keyword) throws IOException {
+    try {
+      List<String> results = facilitySearchService.autocompleteSearch(keyword);
+      return ResponseEntity.ok(results);
+    } catch (IOException e) {
+      return ResponseEntity.status(500).build();
+    }
+  }
 }

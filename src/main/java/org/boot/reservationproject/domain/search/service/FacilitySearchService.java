@@ -3,6 +3,7 @@ package org.boot.reservationproject.domain.search.service;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.search.dto.SearchKeywordResponse;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -100,5 +101,30 @@ public class FacilitySearchService {
         .previewFacilityPhotoUrl(document.getPreviewFacilityPhotoUrl())
         .previewFacilityPhotoName(document.getPreviewFacilityPhotoName())
         .build();
+  }
+
+  public List<String> autocompleteSearch(String keyword) throws IOException {
+    SearchRequest searchRequest = new SearchRequest.Builder()
+        .index("facilities")
+        .query(q -> q
+            .multiMatch(m -> m
+                .fields("facilityName_ngram", "region_ngram", "location_ngram")
+                .query(keyword)
+            )
+        ).build();
+    log.info("자동완성 쿼리 : {}", searchRequest);
+    SearchResponse<FacilityDocument> searchResponse = elasticsearchClient.search(searchRequest, FacilityDocument.class);
+    log.info("자동완성 결과 : {}", searchResponse);
+
+    return searchResponse.hits().hits().stream()
+        .flatMap(hit -> extractKeywords(hit.source(), keyword).stream())
+        .distinct()
+        .collect(Collectors.toList());
+  }
+
+  private List<String> extractKeywords(FacilityDocument document, String keyword) {
+    return Stream.of(document.getFacilityName(), document.getRegion(), document.getLocation())
+        .filter(value -> value != null && value.contains(keyword))
+        .collect(Collectors.toList());
   }
 }

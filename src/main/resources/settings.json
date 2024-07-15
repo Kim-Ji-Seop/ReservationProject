@@ -7,7 +7,7 @@
         },
         "edge_ngram_tokenizer": {
           "type": "edge_ngram",
-          "min_gram": 2,
+          "min_gram": 1,
           "max_gram": 20,
           "token_chars": [
             "letter",
@@ -45,32 +45,32 @@
       "facilityName": {
         "type": "text",
         "analyzer": "nori_analyzer",
-        "search_analyzer": "standard_analyzer"
+        "search_analyzer": "nori_analyzer"
       },
       "region": {
         "type": "text",
         "analyzer": "nori_analyzer",
-        "search_analyzer": "standard_analyzer"
+        "search_analyzer": "nori_analyzer"
       },
       "location": {
         "type": "text",
         "analyzer": "nori_analyzer",
-        "search_analyzer": "standard_analyzer"
+        "search_analyzer": "nori_analyzer"
       },
       "facilityName_ngram": {
         "type": "text",
         "analyzer": "edge_ngram_analyzer",
-        "search_analyzer": "standard_analyzer"
+        "search_analyzer": "edge_ngram_analyzer"
       },
       "region_ngram": {
         "type": "text",
         "analyzer": "edge_ngram_analyzer",
-        "search_analyzer": "standard_analyzer"
+        "search_analyzer": "edge_ngram_analyzer"
       },
       "location_ngram": {
         "type": "text",
         "analyzer": "edge_ngram_analyzer",
-        "search_analyzer": "standard_analyzer"
+        "search_analyzer": "edge_ngram_analyzer"
       }
     }
   }

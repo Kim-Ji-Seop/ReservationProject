@@ -1,9 +1,13 @@
 package org.boot.reservationproject.global.elastic_search;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
+import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
 import javax.net.ssl.SSLContext;
@@ -12,17 +16,18 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.boot.reservationproject.domain.search.repository.FacilitySearchRepository;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
+import org.springframework.core.io.Resource;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackageClasses = FacilitySearchRepository.class)
 public class ElasticSearchConfig {
   @Value("${spring.elasticsearch.rest.username}")
   private String username;
@@ -57,12 +62,36 @@ public class ElasticSearchConfig {
 
     RestClientBuilder builder = RestClient.builder(
             HttpHost.create(uri))
-        .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
+            .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
             .setSSLContext(sslContext)
             .setDefaultCredentialsProvider(credentialsProvider));
 
     RestClient restClient = builder.build();
-    return new ElasticsearchClient(new RestClientTransport(restClient, new JacksonJsonpMapper()));
-  }
+    ElasticsearchClient client = new ElasticsearchClient(new RestClientTransport(restClient, new JacksonJsonpMapper()));
 
+    // 인덱스 생성
+    createIndexIfNotExists(client);
+
+    return client;
+  }
+  private void createIndexIfNotExists(ElasticsearchClient client) throws Exception {
+    // settings.json 파일 읽기
+    Resource resource = new ClassPathResource("settings.json");
+    InputStream is = resource.getInputStream();
+    String settingsJson = new String(is.readAllBytes());
+
+    // 인덱스 생성 요청
+    CreateIndexRequest createIndexRequest = new CreateIndexRequest.Builder()
+        .index("facilities")
+        .withJson(new ByteArrayInputStream(settingsJson.getBytes(StandardCharsets.UTF_8)))
+        .build();
+
+    // 인덱스가 없을 경우에만 생성
+    if (!client.indices().exists(b -> b.index("facilities")).value()) {
+      CreateIndexResponse createIndexResponse = client.indices().create(createIndexRequest);
+      if (!createIndexResponse.acknowledged()) {
+        throw new RuntimeException("Failed to create index 'facilities'");
+      }
+    }
+  }
 }

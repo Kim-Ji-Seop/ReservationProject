@@ -1,0 +1,77 @@
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "nori_tokenizer": {
+          "type": "nori_tokenizer"
+        },
+        "edge_ngram_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 20,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      },
+      "analyzer": {
+        "nori_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": [
+            "lowercase"
+          ]
+        },
+        "edge_ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "edge_ngram_tokenizer",
+          "filter": [
+            "lowercase"
+          ]
+        },
+        "standard_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "facilityName": {
+        "type": "text",
+        "analyzer": "nori_analyzer",
+        "search_analyzer": "standard_analyzer"
+      },
+      "region": {
+        "type": "text",
+        "analyzer": "nori_analyzer",
+        "search_analyzer": "standard_analyzer"
+      },
+      "location": {
+        "type": "text",
+        "analyzer": "nori_analyzer",
+        "search_analyzer": "standard_analyzer"
+      },
+      "facilityName_ngram": {
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "search_analyzer": "standard_analyzer"
+      },
+      "region_ngram": {
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "search_analyzer": "standard_analyzer"
+      },
+      "location_ngram": {
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "search_analyzer": "standard_analyzer"
+      }
+    }
+  }
+}

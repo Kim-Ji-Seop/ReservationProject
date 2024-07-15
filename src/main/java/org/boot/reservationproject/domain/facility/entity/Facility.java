@@ -22,14 +22,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.boot.reservationproject.domain.search.document.FacilityDocument;
 import org.boot.reservationproject.domain.seller.entity.Seller;
 import org.boot.reservationproject.global.BaseEntity;
 import org.boot.reservationproject.global.Category;
-import org.boot.reservationproject.global.elastic_search.sync.FacilityEventListener;
 
 @Entity
-@EntityListeners(FacilityEventListener.class)
 @Table(name = "facility")
 @Builder
 @Getter

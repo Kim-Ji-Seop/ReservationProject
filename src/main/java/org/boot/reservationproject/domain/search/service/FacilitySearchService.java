@@ -1,31 +1,22 @@
 package org.boot.reservationproject.domain.search.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.search.dto.SearchKeywordResponse;
-import org.springframework.data.elasticsearch.core.SearchHit;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch._types.query_dsl.MatchPhrasePrefixQuery;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.boot.reservationproject.domain.facility.entity.Facility;
 import org.boot.reservationproject.domain.facility.repository.FacilityRepository;
 import org.boot.reservationproject.domain.search.document.FacilityDocument;
-import org.springframework.data.elasticsearch.client.elc.NativeQuery;
-import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
 
 @Service

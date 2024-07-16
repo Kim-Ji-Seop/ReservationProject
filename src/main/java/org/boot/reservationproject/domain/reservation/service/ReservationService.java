@@ -1,9 +1,11 @@
 package org.boot.reservationproject.domain.reservation.service;
 
 import com.siot.IamportRestClient.IamportClient;
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import jakarta.annotation.PostConstruct;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -59,10 +61,10 @@ public class ReservationService {
         .orElseThrow(() -> new BaseException(ErrorCode.ROOM_NOT_FOUND));
 
     Customer customer = customerRepository.findByEmail(userEmail)
-        .orElseThrow(() -> new IllegalStateException("Customer not found"));
+        .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
     if (!isRoomAvailable(request.roomId(), request.checkinDate(), request.checkoutDate())) {
-      throw new IllegalStateException("Room is not available for the selected dates");
+      throw new BaseException(ErrorCode.RESERVATION_FAILED);
     }
 
     Reservation reservation = Reservation.builder()
@@ -102,24 +104,21 @@ public class ReservationService {
   }
 
   @Transactional
-  public void completePayment(PaymentRequest request) {
-    try {
-      IamportResponse<Payment> paymentResponse = iamportClient.paymentByImpUid(request.impUid());
-      if (paymentResponse.getResponse().getStatus().equals("paid")) {
-        Reservation reservation = reservationRepository.findByMerchantUid(request.merchantUid())
-            .orElseThrow(() -> new IllegalStateException("Reservation not found"));
-        // 예약 상태 업데이트
-        reservationRepository.updateReservationDetails(request.merchantUid(), Status.PATMENT_FINISH, request.customerName(), request.customerPhoneNumber());
+  public void completePayment(PaymentRequest request) throws IamportResponseException, IOException {
 
-        // 결제 정보 저장
-        PaymentEntity payment = PaymentEntity.builder()
-            .reservation(reservation)
-            .paidMoney(paymentResponse.getResponse().getAmount().intValue())
-            .build();
-        paymentRepository.save(payment);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
+    IamportResponse<Payment> paymentResponse = iamportClient.paymentByImpUid(request.impUid());
+    if (paymentResponse.getResponse().getStatus().equals("paid")) {
+      Reservation reservation = reservationRepository.findByMerchantUid(request.merchantUid())
+          .orElseThrow(() -> new BaseException(ErrorCode.RESERVATION_NOT_FOUND_BY_MID));
+      // 예약 상태 업데이트
+      reservationRepository.updateReservationDetails(request.merchantUid(), Status.PATMENT_FINISH, request.customerName(), request.customerPhoneNumber());
+
+      // 결제 정보 저장
+      PaymentEntity payment = PaymentEntity.builder()
+          .reservation(reservation)
+          .paidMoney(paymentResponse.getResponse().getAmount().intValue())
+          .build();
+      paymentRepository.save(payment);
     }
   }
 }

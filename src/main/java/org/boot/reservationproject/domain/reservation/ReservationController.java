@@ -1,7 +1,9 @@
 package org.boot.reservationproject.domain.reservation;
 
 import com.siot.IamportRestClient.IamportClient;
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import jakarta.annotation.PostConstruct;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.reservation.dto.CreateReservationRequest;
@@ -39,22 +41,9 @@ public class ReservationController {
 
   // 테스트 결제 완료
   @PostMapping("/payments/complete")
-  public void completePayment(@RequestBody PaymentRequest request) {
-    log.info("mid : {}",request.impUid());
+  public void completePayment(@RequestBody PaymentRequest request)
+      throws IamportResponseException, IOException {
     log.info("mid : {}",request.merchantUid());
-    log.info("mid : {}",request.customerName());
-    log.info("mid : {}",request.customerPhoneNumber());
     reservationService.completePayment(request);
   }
-  /* [POST]
-   * 결제 준비
-   *
-   */
-
-  /* [POST]
-   * 시설 예약 - 결제까지 다 되었다는 전제 하에 예약 완료 API
-   * Header : Customer's AccessToken
-   * Body : 시설Idx, 객실Idx, 구매자Idx(Customer), 체크인날짜, 체크아웃날짜, 결제금액
-   */
-
 }

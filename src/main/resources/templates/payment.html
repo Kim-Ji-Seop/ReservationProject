@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Payment</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.iamport.kr/js/iamport.payment-1.1.8.js"></script>
+  <style>
+    form {
+      display: flex;
+      flex-direction: column;
+      width: 300px;
+      margin: auto;
+    }
+    label, input, button {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+<h1>결제 페이지</h1>
+<form id="payment-form">
+  <label for="merchantUid">주문 번호</label>
+  <input type="text" id="merchantUid" maxlength="50" value="order_123456">
+  <label for="amount">결제 금액</label>
+  <input type="number" id="amount" value="1000">
+  <label for="buyerEmail">이메일</label>
+  <input type="email" id="buyerEmail" value="buyer@example.com">
+  <label for="buyerName">예약자 이름</label>
+  <input type="text" id="buyerName" value="홍길동">
+  <label for="buyerPhoneNumber">전화번호</label>
+  <input type="text" id="buyerPhoneNumber" value="01012341234">
+  <button type="button" onclick="requestPay()">결제하기</button>
+</form>
+
+<script>
+  function requestPay() {
+    var IMP = window.IMP;
+    IMP.init('imp74635872');
+
+    const merchantUid = document.getElementById('merchantUid').value;
+    const amount = document.getElementById('amount').value;
+    const buyerEmail = document.getElementById('buyerEmail').value;
+    const buyerName = document.getElementById('buyerName').value;
+    const buyerPhoneNumber = document.getElementById('buyerPhoneNumber').value;
+
+    console.log("Merchant UID: " + merchantUid);
+    console.log("Amount: " + amount);
+    console.log("Buyer Email: " + buyerEmail);
+    console.log("Buyer Name: " + buyerName);
+    console.log("Buyer Phone Number: " + buyerPhoneNumber);
+
+    IMP.request_pay({
+      pg: 'html5_inicis',
+      pay_method: 'card',
+      merchant_uid: merchantUid,
+      name: '결제 테스트',
+      amount: amount,
+      buyer_email: buyerEmail,
+      buyer_name: buyerName
+    }, function (rsp) {
+      if (rsp.success) {
+        console.log("RSP Merchant UID: " + rsp.merchant_uid);
+        $.ajax({
+          type: 'POST',
+          url: 'http://localhost:8083/api/reservations/payments/complete',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            imp_uid: rsp.imp_uid,
+            merchant_uid: rsp.merchant_uid,
+            buyer_name: rsp.buyer_name,
+            buyer_phone_number: buyerPhoneNumber
+          }),
+          success: function(data) {
+            alert('결제가 완료되었습니다.');
+          },
+          error: function(error) {
+            alert('결제에 실패하였습니다.');
+          }
+        });
+      } else {
+        alert('결제에 실패하였습니다.');
+      }
+    });
+  }
+</script>
+</body>
+</html>

@@ -30,6 +30,7 @@ public class FacilitySearchService {
   private final ElasticsearchClient elasticsearchClient;
   private final ElasticsearchOperations elasticsearchOperations;
 
+  // (임시) 테스트 끝날 때까진 이걸로 마이그레이션 계속.
   public void migrateFacilities() {
     List<Facility> facilities = facilityRepository.findAll();
     facilities.forEach(this::saveToElasticsearch);

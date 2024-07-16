@@ -25,12 +25,17 @@ public class FacilitySearchController {
   }
 
 
+  /*
+   * 검색 API
+   */
   @GetMapping
   public ResponseEntity<BaseResponse<List<SearchKeywordResponse>>> searchFacilities(@RequestParam("keyword") String keyword) throws IOException {
     List<SearchKeywordResponse> results = facilitySearchService.searchByKeyword(keyword);
     return ResponseEntity.ok(new BaseResponse<>(results));
   }
-
+  /*
+   * 자동완성 API
+   */
   @GetMapping("/auto-complete")
   public ResponseEntity<BaseResponse<List<String>>> autocompleteFacilities(@RequestParam("keyword") String keyword) throws IOException {
     List<String> results = facilitySearchService.autocompleteSearch(keyword);

@@ -34,7 +34,7 @@ public class JwtTokenProvider {
         .setSubject(userEmail) // 사용자
         .claim("auth",authoritiesString)
         .setIssuedAt(new Date()) // 현재 시간 기반으로 생성
-        .setExpiration(new Date(now.getTime()+30 * 60 * 1000L)) // 만료 시간 세팅 (30분) 30 * 60 * 1000L
+        .setExpiration(new Date(now.getTime()+60 * 60 * 1000L)) // 만료 시간 세팅 (60분)
         .signWith(key, SignatureAlgorithm.HS256) // 사용할 암호화 알고리즘, signature에 들어갈 secret 값 세팅
         .compact();
     String refreshToken=Jwts.builder()

@@ -1,0 +1,116 @@
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "nori_tokenizer": {
+          "type": "nori_tokenizer"
+        },
+        "edge_ngram_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 20,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      },
+      "analyzer": {
+        "nori_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": [
+            "lowercase"
+          ]
+        },
+        "edge_ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "edge_ngram_tokenizer",
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "facilityName": {
+        "type": "text",
+        "analyzer": "nori_analyzer",
+        "search_analyzer": "nori_analyzer"
+      },
+      "region": {
+        "type": "text",
+        "analyzer": "nori_analyzer",
+        "search_analyzer": "nori_analyzer"
+      },
+      "location": {
+        "type": "text",
+        "analyzer": "nori_analyzer",
+        "search_analyzer": "nori_analyzer"
+      },
+      "facilityName_ngram": {
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "search_analyzer": "edge_ngram_analyzer"
+      },
+      "region_ngram": {
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "search_analyzer": "edge_ngram_analyzer"
+      },
+      "location_ngram": {
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "search_analyzer": "edge_ngram_analyzer"
+      },
+      "category": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "averageRating": {
+        "type": "float"
+      },
+      "numberOfReviews": {
+        "type": "long"
+      },
+      "previewFacilityPhotoUrl": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "previewFacilityPhotoName": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "rooms": {
+        "type": "nested",
+        "properties": {
+          "roomIdx": { "type": "long" },
+          "roomName": { "type": "text" },
+          "checkInTime": { "type": "text" },
+          "checkOutTime": { "type": "text" },
+          "minPeople": { "type": "integer" },
+          "maxPeople": { "type": "integer" },
+          "price": { "type": "integer" },
+          "status": { "type": "text" }
+        }
+      }
+    }
+  }
+}

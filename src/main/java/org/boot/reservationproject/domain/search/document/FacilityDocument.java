@@ -2,6 +2,7 @@ package org.boot.reservationproject.domain.search.document;
 
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,8 +31,6 @@ public class FacilityDocument {
 
   private String location;
 
-  private String regCancelRefund;
-
   private BigDecimal averageRating;
 
   private int numberOfReviews;
@@ -45,4 +44,6 @@ public class FacilityDocument {
   private String region_ngram;
 
   private String location_ngram;
+
+  private List<RoomDocument> rooms;
 }

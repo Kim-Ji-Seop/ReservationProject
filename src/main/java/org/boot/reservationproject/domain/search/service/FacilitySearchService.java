@@ -2,8 +2,11 @@ package org.boot.reservationproject.domain.search.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
+import java.util.Objects;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
+import org.boot.reservationproject.domain.search.document.RoomDocument;
+import org.boot.reservationproject.domain.search.dto.RoomDocsPerFacility;
 import org.boot.reservationproject.domain.search.dto.SearchKeywordResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -33,13 +36,25 @@ public class FacilitySearchService {
   }
 
   private void saveToElasticsearch(Facility facility) {
+    List<RoomDocument> roomDocuments = facility.getRooms().stream()
+        .map(room -> RoomDocument.builder()
+            .roomIdx(room.getId())
+            .roomName(room.getRoomName())
+            .checkInTime(room.getCheckInTime())
+            .checkOutTime(room.getCheckOutTime())
+            .minPeople(room.getMinPeople())
+            .maxPeople(room.getMaxPeople())
+            .price(room.getPrice())
+            .status(room.getStatus())
+            .build())
+        .toList();
+
     FacilityDocument facilityDocument = FacilityDocument.builder()
         .id(facility.getId())
         .facilityName(facility.getFacilityName())
         .category(facility.getCategory())
         .region(facility.getRegion())
         .location(facility.getLocation())
-        .regCancelRefund(facility.getRegCancelRefund())
         .averageRating(facility.getAverageRating())
         .numberOfReviews(facility.getNumberOfReviews())
         .previewFacilityPhotoUrl(facility.getPreviewFacilityPhotoUrl())
@@ -47,6 +62,7 @@ public class FacilitySearchService {
         .facilityName_ngram(facility.getFacilityName())
         .region_ngram(facility.getRegion())
         .location_ngram(facility.getLocation())
+        .rooms(roomDocuments)
         .build();
     try {
       IndexResponse response = elasticsearchClient.index(i -> i
@@ -74,23 +90,35 @@ public class FacilitySearchService {
     log.info("검색 쿼리 : {}", searchRequest);
     log.info("검색 결과 : {}", searchResponse);
     return searchResponse.hits().hits().stream()
-        .map(Hit::source)
+        .map(Hit::source).filter(Objects::nonNull)
         .map(this::convertToDto)
         .collect(Collectors.toList());
   }
 
   private SearchKeywordResponse convertToDto(FacilityDocument document) {
+    List<RoomDocsPerFacility> roomDocs = document.getRooms().stream()
+        .map(room -> RoomDocsPerFacility.builder()
+            .roomIdx(room.getRoomIdx())
+            .roomName(room.getRoomName())
+            .checkInTime(room.getCheckInTime())
+            .checkOutTime(room.getCheckOutTime())
+            .minPeople(room.getMinPeople())
+            .maxPeople(room.getMaxPeople())
+            .price(room.getPrice())
+            .status(room.getStatus())
+            .build())
+        .toList();
     return SearchKeywordResponse.builder()
         .id(document.getId())
         .facilityName(document.getFacilityName())
         .category(document.getCategory())
         .region(document.getRegion())
         .location(document.getLocation())
-        .regCancelRefund(document.getRegCancelRefund())
         .averageRating(document.getAverageRating())
         .numberOfReviews(document.getNumberOfReviews())
         .previewFacilityPhotoUrl(document.getPreviewFacilityPhotoUrl())
         .previewFacilityPhotoName(document.getPreviewFacilityPhotoName())
+        .rooms(roomDocs)
         .build();
   }
 

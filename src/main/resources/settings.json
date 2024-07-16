@@ -74,15 +74,6 @@
           }
         }
       },
-      "regCancelRefund": {
-        "type": "text",
-        "fields": {
-          "keyword": {
-            "type": "keyword",
-            "ignore_above": 256
-          }
-        }
-      },
       "averageRating": {
         "type": "float"
       },
@@ -105,6 +96,19 @@
             "type": "keyword",
             "ignore_above": 256
           }
+        }
+      },
+      "rooms": {
+        "type": "nested",
+        "properties": {
+          "roomIdx": { "type": "long" },
+          "roomName": { "type": "text" },
+          "checkInTime": { "type": "text" },
+          "checkOutTime": { "type": "text" },
+          "minPeople": { "type": "integer" },
+          "maxPeople": { "type": "integer" },
+          "price": { "type": "integer" },
+          "status": { "type": "text" }
         }
       }
     }

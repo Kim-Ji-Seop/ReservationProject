@@ -1,6 +1,7 @@
 package org.boot.reservationproject.domain.search.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.Builder;
 import org.boot.reservationproject.global.Category;
 
@@ -11,11 +12,11 @@ public record SearchKeywordResponse (
     Category category,
     String region,
     String location,
-    String regCancelRefund,
     BigDecimal averageRating,
     int numberOfReviews,
     String previewFacilityPhotoUrl,
-    String previewFacilityPhotoName
+    String previewFacilityPhotoName,
+    List<RoomDocsPerFacility> rooms
     ){
 
 }

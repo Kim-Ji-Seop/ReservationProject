@@ -130,10 +130,6 @@ public class FacilitySearchService {
         ))
         .collect(Collectors.toList());
 
-    if (availableRooms.isEmpty()) {
-      return null;
-    }
-
     return FacilityDocument.builder()
         .id(document.getId())
         .facilityName(document.getFacilityName())
@@ -147,7 +143,7 @@ public class FacilitySearchService {
         .facilityName_ngram(document.getFacilityName())
         .region_ngram(document.getRegion())
         .location_ngram(document.getLocation())
-        .rooms(availableRooms)
+        .rooms(availableRooms.isEmpty() ? new ArrayList<>() : availableRooms)
         .build();
   }
 

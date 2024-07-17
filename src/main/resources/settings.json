@@ -108,7 +108,29 @@
           "minPeople": { "type": "integer" },
           "maxPeople": { "type": "integer" },
           "price": { "type": "integer" },
-          "status": { "type": "text" }
+          "status": { "type": "text" },
+          "checkList": {
+            "type": "nested",
+            "properties": {
+              "checkInDate": {
+                "type": "date",
+                "format": "yyyy-MM-dd"
+              },
+              "checkOutDate": {
+                "type": "date",
+                "format": "yyyy-MM-dd"
+              },
+              "isPaid": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

@@ -33,7 +33,7 @@ public class ReservationController {
    *
    */
   @PostMapping
-  public void reserve(@RequestBody CreateReservationRequest request){
+  public void reserve(@RequestBody CreateReservationRequest request) throws IOException {
     String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
     reservationService.reserveFacility(request, userEmail);
   }

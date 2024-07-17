@@ -2,11 +2,13 @@ package org.boot.reservationproject.domain.search.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.search.document.RoomDocument;
+import org.boot.reservationproject.domain.search.dto.CheckListDocDto;
 import org.boot.reservationproject.domain.search.dto.RoomDocsPerFacility;
 import org.boot.reservationproject.domain.search.dto.SearchKeywordResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.boot.reservationproject.domain.facility.entity.Facility;
 import org.boot.reservationproject.domain.facility.repository.FacilityRepository;
 import org.boot.reservationproject.domain.search.document.FacilityDocument;
+import org.boot.reservationproject.global.BaseEntity.Status;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +51,7 @@ public class FacilitySearchService {
             .maxPeople(room.getMaxPeople())
             .price(room.getPrice())
             .status(room.getStatus())
+            .checkList(new ArrayList<>()) // 초기에는 빈 리스트로 설정
             .build())
         .toList();
 
@@ -125,6 +129,13 @@ public class FacilitySearchService {
             .maxPeople(room.getMaxPeople())
             .price(room.getPrice())
             .status(room.getStatus())
+            .checkListDocDtoList(room.getCheckList().stream()
+                .map(checkList -> CheckListDocDto.builder()
+                    .checkInDate(checkList.getCheckInDate())
+                    .checkOutDate(checkList.getCheckOutDate())
+                    .status(checkList.getIsPaid())
+                    .build())
+                .collect(Collectors.toList()))
             .build())
         .toList();
     return SearchKeywordResponse.builder()

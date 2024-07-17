@@ -1,6 +1,7 @@
 package org.boot.reservationproject.domain.reservation.repository;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.boot.reservationproject.domain.reservation.entity.Reservation;
@@ -23,4 +24,6 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
 
 
   Optional<Reservation> findByMerchantUid(String merchantUid);
+
+  List<Reservation> findByRoomId(Long roomId);
 }

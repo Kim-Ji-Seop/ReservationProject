@@ -30,6 +30,6 @@ public class BaseEntity {
     ACTIVE,
     DELETE,
     PAYMENT_WAIT, // 결제 대기
-    PATMENT_FINISH // 결제 완료
+    PAYMENT_FINISH // 결제 완료
   }
 }

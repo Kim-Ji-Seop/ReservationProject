@@ -38,7 +38,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             pathMatcher.match("/api/sellers/registration", path) && request.getMethod().equals("POST") || // 회원가입 > 판매자
             pathMatcher.match("/api/customers/auth-email", path) && request.getMethod().equals("POST") || // 이메일 로그인 > 구매자
             pathMatcher.match("/api/sellers/auth-email", path) && request.getMethod().equals("POST") || // 이메일 로그인 > 판매자
-            pathMatcher.match("/api/admin/registration/service-options",path) && request.getMethod().equals("POST") // 관리자 부대시설 등록
+            pathMatcher.match("/api/admin/registration/service-options",path) && request.getMethod().equals("POST") || // 관리자 부대시설 등록
+            pathMatcher.match("/payment",path) && request.getMethod().equals("GET") || // 테스트 결제
+            pathMatcher.match("/api/reservations/payments/complete",path) && request.getMethod().equals("POST") || // 테스트 결제
+            pathMatcher.match("/favicon.ico", path) && request.getMethod().equals("GET") // favicon 요청
     );
   }
   @Override

@@ -29,6 +29,7 @@ public class BaseEntity {
   public enum Status {
     ACTIVE,
     DELETE,
-    PENDING
+    PAYMENT_WAIT, // 결제 대기
+    PATMENT_FINISH // 결제 완료
   }
 }

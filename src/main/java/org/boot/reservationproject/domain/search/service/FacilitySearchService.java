@@ -3,6 +3,7 @@ package org.boot.reservationproject.domain.search.service;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.search.document.RoomDocument;
@@ -65,16 +66,33 @@ public class FacilitySearchService {
         .location_ngram(facility.getLocation())
         .rooms(roomDocuments)
         .build();
+
+    Optional<IndexResponse> response = saveDocumentToElasticsearch(facilityDocument);
+
+    response.ifPresentOrElse(
+        r -> {
+          log.info("Indexed with version {}", r.version());
+          try {
+            elasticsearchClient.indices().refresh(refreshRequest -> refreshRequest.index("facilities"));
+          } catch (IOException e) {
+            log.error("Failed to refresh index: {}", e.getMessage());
+          }
+        },
+        () -> log.error("Failed to index facility: {}", facility.getId())
+    );
+  }
+
+  private Optional<IndexResponse> saveDocumentToElasticsearch(FacilityDocument facilityDocument) {
     try {
       IndexResponse response = elasticsearchClient.index(i -> i
           .index("facilities")
           .id(String.valueOf(facilityDocument.getId()))
           .document(facilityDocument)
       );
-      System.out.println("Indexed with version " + response.version());
-      elasticsearchClient.indices().refresh(r -> r.index("facilities"));
+      return Optional.of(response);
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Error indexing document: {}", e.getMessage());
+      return Optional.empty();
     }
   }
   public List<SearchKeywordResponse> searchByKeyword(String keyword) throws IOException {

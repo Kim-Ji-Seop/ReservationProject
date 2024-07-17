@@ -2,6 +2,7 @@ package org.boot.reservationproject.domain.search.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
@@ -99,7 +100,7 @@ public class FacilitySearchService {
       return Optional.empty();
     }
   }
-  public List<SearchKeywordResponse> searchByKeyword(String keyword) throws IOException {
+  public List<SearchKeywordResponse> searchByKeyword(String keyword, LocalDate checkInDate, LocalDate checkOutDate, int personal) throws IOException {
     SearchRequest searchRequest = new SearchRequest.Builder()
         .index("facilities")
         .query(q -> q
@@ -114,8 +115,40 @@ public class FacilitySearchService {
     log.info("검색 결과 : {}", searchResponse);
     return searchResponse.hits().hits().stream()
         .map(Hit::source).filter(Objects::nonNull)
+        .map(document -> filterRoomsByAvailability(document, checkInDate, checkOutDate, personal))
+        .filter(Objects::nonNull)
         .map(this::convertToDto)
         .collect(Collectors.toList());
+  }
+
+  private FacilityDocument filterRoomsByAvailability(FacilityDocument document, LocalDate checkInDate, LocalDate checkOutDate, int personal) {
+    List<RoomDocument> availableRooms = document.getRooms().stream()
+        .filter(room -> room.getMinPeople() >= personal)
+        .filter(room -> room.getCheckList().stream().noneMatch(checkList ->
+            (checkInDate.isBefore(checkList.getCheckOutDate()) && checkOutDate.isAfter(checkList.getCheckInDate())) &&
+                (checkList.getIsPaid() == Status.PAYMENT_FINISH || checkList.getIsPaid() == Status.PAYMENT_WAIT)
+        ))
+        .collect(Collectors.toList());
+
+    if (availableRooms.isEmpty()) {
+      return null;
+    }
+
+    return FacilityDocument.builder()
+        .id(document.getId())
+        .facilityName(document.getFacilityName())
+        .category(document.getCategory())
+        .region(document.getRegion())
+        .location(document.getLocation())
+        .averageRating(document.getAverageRating())
+        .numberOfReviews(document.getNumberOfReviews())
+        .previewFacilityPhotoUrl(document.getPreviewFacilityPhotoUrl())
+        .previewFacilityPhotoName(document.getPreviewFacilityPhotoName())
+        .facilityName_ngram(document.getFacilityName())
+        .region_ngram(document.getRegion())
+        .location_ngram(document.getLocation())
+        .rooms(availableRooms)
+        .build();
   }
 
   private SearchKeywordResponse convertToDto(FacilityDocument document) {

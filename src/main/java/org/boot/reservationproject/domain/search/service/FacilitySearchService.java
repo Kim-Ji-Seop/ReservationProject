@@ -167,6 +167,12 @@ public class FacilitySearchService {
                 .collect(Collectors.toList()))
             .build())
         .toList();
+
+    int minPrice = roomDocs.stream()
+        .mapToInt(RoomDocsPerFacility::price)
+        .min()
+        .orElse(0);
+
     return SearchKeywordResponse.builder()
         .id(document.getId())
         .facilityName(document.getFacilityName())
@@ -178,6 +184,7 @@ public class FacilitySearchService {
         .previewFacilityPhotoUrl(document.getPreviewFacilityPhotoUrl())
         .previewFacilityPhotoName(document.getPreviewFacilityPhotoName())
         .rooms(roomDocs)
+        .minPrice(minPrice)
         .build();
   }
 

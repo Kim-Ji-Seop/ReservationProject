@@ -16,7 +16,8 @@ public record SearchKeywordResponse (
     int numberOfReviews,
     String previewFacilityPhotoUrl,
     String previewFacilityPhotoName,
-    List<RoomDocsPerFacility> rooms
+    List<RoomDocsPerFacility> rooms,
+    int minPrice
     ){
 
 }

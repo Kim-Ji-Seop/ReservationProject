@@ -184,7 +184,7 @@ public class FacilitySearchService {
         .previewFacilityPhotoUrl(document.getPreviewFacilityPhotoUrl())
         .previewFacilityPhotoName(document.getPreviewFacilityPhotoName())
         .rooms(roomDocs)
-        .minPrice(minPrice)
+        .minPrice(minPrice) // 0으로 표시되면 모든 객실 Soldou†
         .build();
   }
 

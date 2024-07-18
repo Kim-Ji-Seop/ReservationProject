@@ -2,6 +2,7 @@ package org.boot.reservationproject.domain.facility;
 
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,8 +66,13 @@ public class FacilityController {
   // 시설들 카테고리별 조회
   @GetMapping( "/previews")
   public ResponseEntity<BaseResponse<FacilitiesPageResponse>>
-              getFacilitiesPreview(@RequestParam("category") Category category, Pageable pageable){
-    FacilitiesPageResponse responses = facilityService.getFacilitiesPreview(category,pageable);
+              getFacilitiesPreview(
+                  @RequestParam("category") Category category,
+                  @RequestParam("checkIn") LocalDate checkInDate,
+                  @RequestParam("checkOut") LocalDate checkOutDate,
+                  @RequestParam("personal") int personal,
+                  Pageable pageable){
+    FacilitiesPageResponse responses = facilityService.getFacilitiesPreview(category, checkInDate, checkOutDate, personal, pageable);
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }
 

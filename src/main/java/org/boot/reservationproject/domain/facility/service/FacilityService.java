@@ -3,6 +3,7 @@ package org.boot.reservationproject.domain.facility.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import org.boot.reservationproject.domain.facility.repository.RoomRepository;
 import org.boot.reservationproject.domain.facility.repository.SubsidiaryRepository;
 import org.boot.reservationproject.domain.seller.entity.Seller;
 import org.boot.reservationproject.domain.seller.repository.SellerRepository;
+import org.boot.reservationproject.global.BaseEntity.Status;
 import org.boot.reservationproject.global.Category;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
@@ -191,14 +193,18 @@ public class FacilityService {
   }
 
   @Transactional(readOnly = true)
-  @Cacheable(value = "facility", key = "#category.name() + '-' + #pageable.pageNumber")
-  public FacilitiesPageResponse
-    getFacilitiesPreview(Category category, Pageable pageable) {
+  @Cacheable(value = "facility", key = "#category.name() + '-' + #checkInDate.toString() + '-' + #checkOutDate.toString() + '-' + #personal + '-' + #pageable.pageNumber")
+  public FacilitiesPageResponse getFacilitiesPreview( Category category,
+                                                      LocalDate checkInDate,
+                                                      LocalDate checkOutDate,
+                                                      int personal,
+                                                      Pageable pageable) {
 
     Page<Facility> facilities = getFacilityList(category,pageable);
 
-    List<FacilitiesInformationPreviewResponse> content = facilities.getContent().stream()
-        .map(this::convertToDto)
+    List<FacilitiesInformationPreviewResponse> content = facilities.getContent()
+        .stream()
+        .map(facility -> convertToDtoWithFilter(facility, checkInDate, checkOutDate, personal))
         .collect(Collectors.toList());
 
     PageMetadata metadata = new PageMetadata(
@@ -214,23 +220,26 @@ public class FacilityService {
 
     return new FacilitiesPageResponse(content, metadata);
   }
-  private Page<Facility> getFacilityList(Category category, Pageable pageable){
-    if (category == Category.TOTAL) {
-      return facilityRepository.findAll(pageable);
-    } else {
-      return facilityRepository.findByCategory(category,pageable);
+  private FacilitiesInformationPreviewResponse convertToDtoWithFilter(Facility facility, LocalDate checkInDate, LocalDate checkOutDate, int personal) {
+    List<Room> availableRooms = facility.getRooms().stream()
+        .filter(room -> room.getMinPeople() <= personal && room.getMaxPeople() >= personal)
+        .filter(room -> room.getReservations().stream().noneMatch(reservation ->
+            (checkInDate.isBefore(reservation.getCheckoutDate()) && checkOutDate.isAfter(reservation.getCheckinDate())) &&
+                (reservation.getStatus() == Status.PAYMENT_FINISH || reservation.getStatus() == Status.PAYMENT_WAIT)
+        ))
+        .toList();
+    for(Room r : availableRooms){
+      log.info("available room idx : {}",r.getId());
+      log.info("available room name : {}",r.getRoomName());
+      log.info("available room price : {}",r.getPrice());
+      log.info("available room reservation : {}",r.getReservations());
     }
-  }
-  private FacilitiesInformationPreviewResponse convertToDto(Facility facility) {
-    String previewPhoto = facility.getPreviewFacilityPhotoUrl();
 
-    int minPrice = facility.getRooms().stream()
+    int minPrice = availableRooms.stream()
         .min(Comparator.comparingInt(Room::getPrice))
         .map(Room::getPrice)
         .orElse(0);
-    // 시설 > 객실 중 가장 싼 값의 가격을 preview로 배치시킴.
-    // customer가 시설 예약을 할 때, 선택된 날짜 범위내에 가능한 시설 > 객실들 중에서, 가장 저렴한 값을 내보내야 함
-    // 하지만 날짜 범위에 예약 가능한 객실이 없다면 해당 가격란은 "다른 날짜를 알아보세요" 라고 써지게 되어야 함
+
     return FacilitiesInformationPreviewResponse.builder()
         .facilityIdx(facility.getId())
         .category(facility.getCategory())
@@ -239,9 +248,18 @@ public class FacilityService {
         .averageRating(facility.getAverageRating())
         .numberOfReviews(facility.getNumberOfReviews())
         .price(minPrice)
-        .previewPhoto(previewPhoto)
+        .previewPhoto(facility.getPreviewFacilityPhotoUrl())
         .build();
   }
+
+  private Page<Facility> getFacilityList(Category category, Pageable pageable){
+    if (category == Category.TOTAL) {
+      return facilityRepository.findAll(pageable);
+    } else {
+      return facilityRepository.findByCategory(category,pageable);
+    }
+  }
+
 
   @Transactional(readOnly = true)
   @Cacheable(value = "facilityDetails", key = "#facilityIdx")

@@ -195,6 +195,7 @@ public class FacilityService {
     return createFacilityDetailResponse(facility, roomPreviewsList, subsidiaryDetails);
   }
 
+
   @Transactional
   @CacheEvict(value = "facility", allEntries = true)
   public void updateFacility(
@@ -205,7 +206,7 @@ public class FacilityService {
 
     // 2. Facility(시설) 정보 가져오기
     Facility facility = getFacility(facilityIdx);
-
+    log.info("이전 name : {}", facility.getFacilityName());
     // 3. 기존 썸네일 사진 삭제
     deleteExistingThumbnailPhoto(facility);
 
@@ -213,10 +214,15 @@ public class FacilityService {
     String thumbNailPhotoUrl = uploadThumbnailPhoto(facilityPhotos.get(0), request);
     String thumbNailPhotoName = facilityPhotos.get(0).getOriginalFilename();
 
+    // 시설 정보 업데이트
     updateFacilityInfo(facilityIdx, request, thumbNailPhotoUrl, thumbNailPhotoName);
 
+    // 트랜잭션 내에서 변경사항을 강제로 데이터베이스에 반영
+    facilityRepository.flush();
+
     // 업데이트된 Facility 정보를 다시 가져오기
-    Facility updatedFacility = getFacility(facilityIdx);
+    Facility updatedFacility = refreshFacility(facilityIdx);
+    log.info("방금 수정된 name : {}", updatedFacility.getFacilityName());
 
     // 6. 기존 사진 정보 업데이트 및 S3 사진 삭제
     deleteExistingPhotos(updatedFacility);
@@ -240,6 +246,7 @@ public class FacilityService {
 
     if (getResponse.found()) {
       FacilityDocument facilityDocument = getResponse.source();
+      log.info("ES에 업데이트 할 fac name : {}",facility.getFacilityName());
 
       assert facilityDocument != null;
       updateFacilityDocument(facility, facilityDocument);
@@ -262,6 +269,11 @@ public class FacilityService {
     }
   }
 
+  private Facility refreshFacility(Long facilityIdx) {
+    facilityRepository.flush();
+    return facilityRepository.findById(facilityIdx)
+        .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));
+  }
   private Seller getSeller(String sellerEmail) {
     return sellerRepository.findByCpEmail(sellerEmail)
         .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
@@ -465,6 +477,7 @@ public class FacilityService {
   }
 
   private void updateFacilityInfo(Long facilityIdx, UpdateFacilityRequest request, String thumbNailPhotoUrl, String thumbNailPhotoName) {
+    log.info("이 이름으로 변경 name : {}", request.name());
     facilityRepository.updateFacility(facilityIdx,
         request.name(),
         request.category(),
@@ -473,6 +486,8 @@ public class FacilityService {
         request.regCancelRefund(),
         thumbNailPhotoUrl,
         thumbNailPhotoName);
+    // 트랜잭션 내에서 변경사항을 강제로 데이터베이스에 반영
+    facilityRepository.flush();
   }
 
   private void deleteExistingPhotos(Facility facility) {
@@ -516,6 +531,7 @@ public class FacilityService {
   }
 
   private void updateFacilityDocument(Facility facility, FacilityDocument facilityDocument) {
+    log.info("facility name : {}",facility.getFacilityName());
     facilityDocument.setFacilityName(facility.getFacilityName());
     facilityDocument.setCategory(facility.getCategory());
     facilityDocument.setRegion(facility.getRegion());

@@ -24,7 +24,7 @@ public interface FacilityRepository extends JpaRepository<Facility,Long> {
       + "WHERE f.id = :facilityIdx")
   Optional<Facility> findFacilityWithRooms(@Param("facilityIdx") Long facilityIdx);
 
-  @Modifying
+  @Modifying(clearAutomatically=true) // JPA 1차캐시 <-> DB 동기화 문제
   @Transactional
   @Query("UPDATE Facility f "
       + "SET f.facilityName = :facilityName, "

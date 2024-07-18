@@ -5,6 +5,8 @@ import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -65,7 +67,13 @@ public class ElasticSearchConfig {
             .setDefaultCredentialsProvider(credentialsProvider));
 
     RestClient restClient = builder.build();
-    ElasticsearchClient client = new ElasticsearchClient(new RestClientTransport(restClient, new JacksonJsonpMapper()));
+
+    // ObjectMapper에 JavaTimeModule 등록
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    JacksonJsonpMapper jsonpMapper = new JacksonJsonpMapper(objectMapper);
+
+    ElasticsearchClient client = new ElasticsearchClient(new RestClientTransport(restClient, jsonpMapper));
 
     // 인덱스 생성
     createIndexIfNotExists(client);

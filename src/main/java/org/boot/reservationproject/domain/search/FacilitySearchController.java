@@ -1,6 +1,7 @@
 package org.boot.reservationproject.domain.search;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.boot.reservationproject.domain.search.dto.SearchKeywordResponse;
@@ -29,8 +30,16 @@ public class FacilitySearchController {
    * 검색 API
    */
   @GetMapping
-  public ResponseEntity<BaseResponse<List<SearchKeywordResponse>>> searchFacilities(@RequestParam("keyword") String keyword) throws IOException {
-    List<SearchKeywordResponse> results = facilitySearchService.searchByKeyword(keyword);
+  public ResponseEntity<BaseResponse<List<SearchKeywordResponse>>>
+    searchFacilities(
+        @RequestParam("keyword") String keyword,
+        @RequestParam("checkIn") LocalDate checkInDate,
+        @RequestParam("checkOut") LocalDate checkOutDate,
+        @RequestParam("personal") int personal) throws IOException {
+
+    List<SearchKeywordResponse> results = facilitySearchService
+        .searchByKeyword(keyword, checkInDate, checkOutDate, personal);
+
     return ResponseEntity.ok(new BaseResponse<>(results));
   }
   /*

@@ -262,22 +262,30 @@ public class FacilityService {
 
 
   @Transactional(readOnly = true)
-  @Cacheable(value = "facilityDetails", key = "#facilityIdx")
-  public FacilityInformationDetailResponse getFacilityDetail(Long facilityIdx) {
+  @Cacheable(value = "facilityDetails", key = "#facilityIdx  + '-' + #checkInDate.toString() + '-' + #checkOutDate.toString() + '-' + #personal")
+  public FacilityInformationDetailResponse getFacilityDetail(
+      Long facilityIdx, LocalDate checkInDate, LocalDate checkOutDate, int personal) {
+
     Facility facility = facilityRepository.findFacilityWithRooms(facilityIdx)
         .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));
 
     List<RoomPreviews> roomPreviewsList = facility.getRooms().stream()
-            .map(room -> new RoomPreviews(
-        room.getId(),
-        room.getRoomName(),
-        room.getMinPeople(),
-        room.getMaxPeople(),
-        room.getCheckInTime(),
-        room.getCheckOutTime(),
-        room.getPrice(),
-        room.getPreviewRoomPhotoUrl()
-    )).collect(Collectors.toList());
+        .filter(room -> (room.getMinPeople() <= personal) && (room.getMaxPeople() >= personal))
+        .filter(room -> room.getReservations().stream().noneMatch(reservation ->
+            (checkInDate.isBefore(reservation.getCheckoutDate()) && checkOutDate.isAfter(reservation.getCheckinDate())) &&
+                (reservation.getStatus() == Status.PAYMENT_FINISH || reservation.getStatus() == Status.PAYMENT_WAIT)
+        ))
+        .map(room -> new RoomPreviews(
+          room.getId(),
+          room.getRoomName(),
+          room.getMinPeople(),
+          room.getMaxPeople(),
+          room.getCheckInTime(),
+          room.getCheckOutTime(),
+          room.getPrice(),
+          room.getPreviewRoomPhotoUrl()
+        ))
+        .collect(Collectors.toList());
 
     List<String> subsidiaryDetails = facilitySubsidiaryRepository.findSubsidiariesByFacilityIdx(facilityIdx)
         .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));

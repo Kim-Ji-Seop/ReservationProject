@@ -72,15 +72,21 @@ public class FacilityController {
                   @RequestParam("checkOut") LocalDate checkOutDate,
                   @RequestParam("personal") int personal,
                   Pageable pageable){
-    FacilitiesPageResponse responses = facilityService.getFacilitiesPreview(category, checkInDate, checkOutDate, personal, pageable);
+    FacilitiesPageResponse responses =
+        facilityService.getFacilitiesPreview(category, checkInDate, checkOutDate, personal, pageable);
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }
 
   // 시설 상세보기 조회
   @GetMapping( "/details/{facilityIdx}")
   public ResponseEntity<BaseResponse<FacilityInformationDetailResponse>>
-              getFacilityDetail(@PathVariable Long facilityIdx){
-    FacilityInformationDetailResponse responses = facilityService.getFacilityDetail(facilityIdx);
+              getFacilityDetail(
+                  @PathVariable Long facilityIdx,
+                  @RequestParam("checkIn") LocalDate checkInDate,
+                  @RequestParam("checkOut") LocalDate checkOutDate,
+                  @RequestParam("personal") int personal){
+    FacilityInformationDetailResponse responses =
+        facilityService.getFacilityDetail(facilityIdx, checkInDate, checkOutDate, personal);
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }
   // 객실 추가하기 - 시설정보 수정에 넣을지?

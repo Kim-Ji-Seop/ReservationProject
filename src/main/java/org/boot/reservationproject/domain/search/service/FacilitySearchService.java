@@ -41,7 +41,7 @@ public class FacilitySearchService {
     facilities.forEach(this::saveToElasticsearch);
   }
 
-  private void saveToElasticsearch(Facility facility) {
+  public void saveToElasticsearch(Facility facility) {
     List<RoomDocument> roomDocuments = facility.getRooms().stream()
         .map(room -> RoomDocument.builder()
             .roomIdx(room.getId())

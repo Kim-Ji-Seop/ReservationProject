@@ -40,4 +40,19 @@ public class S3Service {
       throw new RuntimeException("S3 업로드 중 오류 발생", e);
     }
   }
+
+  public void deleteFile(String fileUrl) {
+    try {
+      // S3 파일 경로에서 버킷 이름과 키 추출
+      String bucketName = bucket;
+      String fileName = fileUrl.substring(fileUrl.indexOf("/", 8) + 1); // "https://" 부분을 제외하고 키 추출
+
+      // 파일 삭제
+      amazonS3Client.deleteObject(bucketName, fileName);
+      log.info("Deleted file from S3: {}", fileUrl);
+    } catch (Exception e) {
+      log.error("S3 파일 삭제 중 오류 발생", e);
+      throw new RuntimeException("S3 파일 삭제 중 오류 발생", e);
+    }
+  }
 }

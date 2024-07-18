@@ -4,6 +4,7 @@ package org.boot.reservationproject.domain.facility.service;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.UpdateResponse;
+import jakarta.persistence.EntityManager;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -66,6 +67,7 @@ public class FacilityService {
   private final S3Service s3Service;
   private final FacilitySearchService facilitySearchService;
   private final ElasticsearchClient elasticsearchClient;
+  private final EntityManager entityManager;
 
   @Transactional
   @CacheEvict(value = "facility", allEntries = true)
@@ -217,11 +219,8 @@ public class FacilityService {
     // 시설 정보 업데이트
     updateFacilityInfo(facilityIdx, request, thumbNailPhotoUrl, thumbNailPhotoName);
 
-    // 트랜잭션 내에서 변경사항을 강제로 데이터베이스에 반영
-    facilityRepository.flush();
-
     // 업데이트된 Facility 정보를 다시 가져오기
-    Facility updatedFacility = refreshFacility(facilityIdx);
+    Facility updatedFacility = getFacility(facilityIdx);
     log.info("방금 수정된 name : {}", updatedFacility.getFacilityName());
 
     // 6. 기존 사진 정보 업데이트 및 S3 사진 삭제
@@ -232,6 +231,9 @@ public class FacilityService {
 
     // 6. Room(객실) 정보 업데이트
     updateRooms(request, updatedFacility);
+
+    // 업데이트된 Facility 정보를 다시 가져오기 (최신 Room 정보 반영)
+    updatedFacility = getFacility(facilityIdx);
 
     // 7. 엘라스틱 서치에 정보 업데이트
     updateElasticsearchIndex(updatedFacility);
@@ -269,11 +271,6 @@ public class FacilityService {
     }
   }
 
-  private Facility refreshFacility(Long facilityIdx) {
-    facilityRepository.flush();
-    return facilityRepository.findById(facilityIdx)
-        .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));
-  }
   private Seller getSeller(String sellerEmail) {
     return sellerRepository.findByCpEmail(sellerEmail)
         .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
@@ -486,8 +483,6 @@ public class FacilityService {
         request.regCancelRefund(),
         thumbNailPhotoUrl,
         thumbNailPhotoName);
-    // 트랜잭션 내에서 변경사항을 강제로 데이터베이스에 반영
-    facilityRepository.flush();
   }
 
   private void deleteExistingPhotos(Facility facility) {

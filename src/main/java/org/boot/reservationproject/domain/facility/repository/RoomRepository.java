@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface RoomRepository extends JpaRepository<Room,Long> {
-  @Modifying(clearAutomatically=true) // JPA 1차캐시 <-> DB 동기화 문제
+  @Modifying
   @Transactional
   @Query("UPDATE Room r "
       + "SET r.previewRoomPhotoUrl = :previewRoomPhotoUrl, "
@@ -22,7 +22,7 @@ public interface RoomRepository extends JpaRepository<Room,Long> {
       @Param("previewRoomPhotoUrl") String previewRoomPhotoUrl,
       @Param("previewRoomPhotoName") String previewPhotoName);
 
-  @Modifying(clearAutomatically=true) // JPA 1차캐시 <-> DB 동기화 문제
+  @Modifying(clearAutomatically = true)
   @Transactional
   @Query("UPDATE Room r "
       + "SET r.roomName = :roomName, "

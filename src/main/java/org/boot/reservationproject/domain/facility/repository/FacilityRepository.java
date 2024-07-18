@@ -43,4 +43,5 @@ public interface FacilityRepository extends JpaRepository<Facility,Long> {
       @Param("regCancelRefund") String regCancelRefund,
       @Param("previewFacilityPhotoUrl") String previewFacilityPhotoUrl,
       @Param("previewFacilityPhotoName") String previewFacilityPhotoName);
+
 }

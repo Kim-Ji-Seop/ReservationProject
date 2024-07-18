@@ -368,6 +368,7 @@ public class FacilityService {
     }
 
     // 5. 새로운 사진 정보 저장
+    Facility finalFacility = facility;
     List<Photo> facilityPhotoEntities = facilityPhotos.stream()
         .map(facilityPhoto -> {
       try {
@@ -375,7 +376,7 @@ public class FacilityService {
             "facilities/" + request.category().name().toLowerCase() +
                 "/" + request.name() + "/fac-photo");
         return Photo.builder()
-            .facility(facility)
+            .facility(finalFacility)
             .photoUrl(photoUrl)
             .photoName(facilityPhoto.getOriginalFilename())
             .build();
@@ -416,6 +417,11 @@ public class FacilityService {
         roomRepository.save(newRoom);
       }
     }
+
+    // 업데이트 후 facility객체 다시 가져오기
+    facility = facilityRepository.findById(facilityIdx)
+        .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));
+
     // 7. 엘라스틱 서치에 정보 업데이트
     updateElasticsearchIndex(facility);
   }

@@ -101,11 +101,8 @@ public class FacilityController {
       @Valid @RequestPart("facilityRequest") UpdateFacilityRequest request,
       @RequestPart("facilityPhotos") List<MultipartFile> facilityPhotos
   ) throws IOException {
-    // 1. SecurityContextHolder에서 인증된 사용자 정보 추출
-    String sellerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-    // 2. Service에 보내는 Param으로 추가
-    facilityService.updateFacility(facilityIdx, request, facilityPhotos, sellerEmail);
+    facilityService.updateFacility(facilityIdx, request, facilityPhotos);
   }
 
   // 시설정보 수정 - 객실 정보

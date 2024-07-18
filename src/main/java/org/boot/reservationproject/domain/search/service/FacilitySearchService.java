@@ -143,7 +143,7 @@ public class FacilitySearchService {
         .facilityName_ngram(document.getFacilityName())
         .region_ngram(document.getRegion())
         .location_ngram(document.getLocation())
-        .rooms(availableRooms.isEmpty() ? new ArrayList<>() : availableRooms)
+        .rooms(availableRooms)
         .build();
   }
 

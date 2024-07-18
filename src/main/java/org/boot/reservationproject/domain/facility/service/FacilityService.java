@@ -357,6 +357,10 @@ public class FacilityService {
                                       thumbNailPhotoUrl,
                                       thumbNailPhoto.getOriginalFilename());
 
+    // 업데이트된 Facility 정보를 다시 가져오기
+    Facility updatedFacility = facilityRepository.findById(facilityIdx)
+        .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));
+
     // 6. 기존 사진 정보 업데이트 및 S3 사진 삭제
     List<Photo> existingPhotos = photoRepository.findByFacility(
         facilityRepository.findById(facilityIdx)
@@ -368,7 +372,6 @@ public class FacilityService {
     }
 
     // 5. 새로운 사진 정보 저장
-    Facility finalFacility = facility;
     List<Photo> facilityPhotoEntities = facilityPhotos.stream()
         .map(facilityPhoto -> {
       try {
@@ -376,7 +379,7 @@ public class FacilityService {
             "facilities/" + request.category().name().toLowerCase() +
                 "/" + request.name() + "/fac-photo");
         return Photo.builder()
-            .facility(finalFacility)
+            .facility(updatedFacility)
             .photoUrl(photoUrl)
             .photoName(facilityPhoto.getOriginalFilename())
             .build();
@@ -406,7 +409,7 @@ public class FacilityService {
                         roomDetail.price());
       } else {
         Room newRoom = Room.builder()
-            .facility(facility)
+            .facility(updatedFacility)
             .roomName(roomDetail.roomName())
             .minPeople(roomDetail.minPeople())
             .maxPeople(roomDetail.maxPeople())
@@ -418,12 +421,8 @@ public class FacilityService {
       }
     }
 
-    // 업데이트 후 facility객체 다시 가져오기
-    facility = facilityRepository.findById(facilityIdx)
-        .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));
-
     // 7. 엘라스틱 서치에 정보 업데이트
-    updateElasticsearchIndex(facility);
+    updateElasticsearchIndex(updatedFacility);
   }
 
   @Transactional

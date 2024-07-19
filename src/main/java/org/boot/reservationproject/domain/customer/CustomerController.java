@@ -4,10 +4,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.boot.reservationproject.domain.customer.dto.request.SignInRequest;
 import org.boot.reservationproject.domain.customer.dto.request.SignUpRequest;
+import org.boot.reservationproject.domain.customer.dto.request.UpdateCustomerInfoRequest;
 import org.boot.reservationproject.domain.customer.dto.response.SignInResponse;
+import org.boot.reservationproject.domain.customer.entity.Customer;
 import org.boot.reservationproject.domain.customer.service.CustomerService;
 import org.boot.reservationproject.global.error.BaseResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,5 +39,11 @@ public class CustomerController {
   public ResponseEntity<BaseResponse<SignInResponse>> signIn(@Valid @RequestBody SignInRequest request){
     SignInResponse response = customerService.signIn(request);
     return ResponseEntity.ok(new BaseResponse<>(response));
+  }
+
+  @PatchMapping("/informations/{userIdx}")
+  public void updateCustomerInfo(@Valid @RequestBody UpdateCustomerInfoRequest request){
+    String customerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+    customerService.updateCustomerInfo(customerEmail,request);
   }
 }

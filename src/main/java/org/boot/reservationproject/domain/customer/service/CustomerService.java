@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.customer.dto.request.SignInRequest;
 import org.boot.reservationproject.domain.customer.dto.request.SignUpRequest;
+import org.boot.reservationproject.domain.customer.dto.request.UpdateCustomerInfoRequest;
 import org.boot.reservationproject.domain.customer.dto.response.SignInResponse;
 import org.boot.reservationproject.domain.customer.entity.Customer;
 import org.boot.reservationproject.domain.customer.repository.CustomerRepository;
@@ -65,6 +66,7 @@ public class CustomerService {
         .generateToken(userDetails.getUsername(),userDetails.getAuthorities());
 
     return SignInResponse.builder()
+        .userIdx(customer.getId())
         .nickname(customer.getNickname())
         .tokenDto(token)
         .build();
@@ -76,5 +78,10 @@ public class CustomerService {
 
   public String encodingPassword(SignUpRequest request){
     return passwordEncoder.encode(request.password());
+  }
+
+
+  public void updateCustomerInfo(String customerEmail, UpdateCustomerInfoRequest request) {
+    customerRepository.updateCustomerInfo(customerEmail,request.nickname(),request.name());
   }
 }

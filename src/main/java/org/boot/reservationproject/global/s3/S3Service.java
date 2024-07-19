@@ -6,6 +6,8 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +40,25 @@ public class S3Service {
     } catch (Exception e) {
       log.error("S3 업로드 중 오류 발생", e);
       throw new RuntimeException("S3 업로드 중 오류 발생", e);
+    }
+  }
+
+  public void deleteFile(String fileUrl) {
+    try {
+      // S3 파일 경로에서 버킷 이름과 키 추출
+      String bucketName = bucket;
+      String fileName = fileUrl.substring(fileUrl.indexOf("/", 8) + 1); // "https://" 부분을 제외하고 키 추출
+      // URL 디코딩
+      String decodedFileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8);
+
+      log.info("Deleting file from S3: bucketName={}, fileName={}", bucketName, decodedFileName);
+
+      // 파일 삭제
+      amazonS3Client.deleteObject(bucketName, decodedFileName);
+      log.info("Deleted file from S3: {}", fileUrl);
+    } catch (Exception e) {
+      log.error("S3 파일 삭제 중 오류 발생", e);
+      throw new RuntimeException("S3 파일 삭제 중 오류 발생", e);
     }
   }
 }

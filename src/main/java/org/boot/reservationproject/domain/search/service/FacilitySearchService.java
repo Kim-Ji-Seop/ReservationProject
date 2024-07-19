@@ -41,7 +41,7 @@ public class FacilitySearchService {
     facilities.forEach(this::saveToElasticsearch);
   }
 
-  private void saveToElasticsearch(Facility facility) {
+  public void saveToElasticsearch(Facility facility) {
     List<RoomDocument> roomDocuments = facility.getRooms().stream()
         .map(room -> RoomDocument.builder()
             .roomIdx(room.getId())
@@ -123,6 +123,7 @@ public class FacilitySearchService {
 
   private FacilityDocument filterRoomsByAvailability(FacilityDocument document, LocalDate checkInDate, LocalDate checkOutDate, int personal) {
     List<RoomDocument> availableRooms = document.getRooms().stream()
+        .filter(room -> room.getStatus() != Status.DELETE)
         .filter(room -> (room.getMinPeople() <= personal) && (room.getMaxPeople() >= personal))
         .filter(room -> room.getCheckList().stream().noneMatch(checkList ->
             (checkInDate.isBefore(checkList.getCheckOutDate()) && checkOutDate.isAfter(checkList.getCheckInDate())) &&
@@ -143,7 +144,7 @@ public class FacilitySearchService {
         .facilityName_ngram(document.getFacilityName())
         .region_ngram(document.getRegion())
         .location_ngram(document.getLocation())
-        .rooms(availableRooms.isEmpty() ? new ArrayList<>() : availableRooms)
+        .rooms(availableRooms)
         .build();
   }
 
@@ -184,7 +185,7 @@ public class FacilitySearchService {
         .previewFacilityPhotoUrl(document.getPreviewFacilityPhotoUrl())
         .previewFacilityPhotoName(document.getPreviewFacilityPhotoName())
         .rooms(roomDocs)
-        .minPrice(minPrice)
+        .minPrice(minPrice) // 0으로 표시되면 모든 객실 Soldou†
         .build();
   }
 

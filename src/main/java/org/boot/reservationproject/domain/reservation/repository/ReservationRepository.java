@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import org.boot.reservationproject.domain.reservation.entity.Reservation;
 import org.boot.reservationproject.global.BaseEntity;
+import org.boot.reservationproject.global.BaseEntity.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface ReservationRepository extends JpaRepository<Reservation,Long> {
   // 유저A의 체크인Date >= 유저B가 예약해둔 체크아웃Date
@@ -25,5 +27,8 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
 
   Optional<Reservation> findByMerchantUid(String merchantUid);
 
-  List<Reservation> findByRoomId(Long roomId);
+  @Modifying
+  @Transactional
+  @Query("UPDATE Reservation r SET r.status = :status WHERE r.room.id = :roomId")
+  void updateReservationStatusByRoom(@Param("roomId") Long roomId, @Param("status") Status status);
 }

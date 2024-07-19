@@ -94,7 +94,7 @@ public class FacilityController {
     return ResponseEntity.ok(new BaseResponse<>(responses));
   }
 
-  // 시설정보 수정 - 기본 텍스트 정보, 시설 사진 정보
+  // 시설정보 수정 - 기본 텍스트, 시설 사진, 객실
   @PatchMapping(value = "/{facilityIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public void updateFacility(
       @PathVariable Long facilityIdx,
@@ -104,13 +104,20 @@ public class FacilityController {
 
     facilityService.updateFacility(facilityIdx, request, facilityPhotos);
   }
+  // 객실 사진 수정
+  @PatchMapping(value = "/registration/room-photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public void updateRoomPhotos(
+      @RequestParam("facilityIdx") Long facilityIdx,
+      @RequestParam("roomIdx") Long roomIdx,
+      @RequestPart("roomPhotos") List<MultipartFile> roomPhotos) throws IOException {
 
-  // 시설정보 수정 - 객실 정보
+    facilityService.updateRoomPhotos(facilityIdx, roomIdx, roomPhotos);
+  }
+  // 객실 추가
+  // 객실 삭제
 
-
-  // 객실 추가하기 - 시설정보 수정에 넣을지?
-  // 시설정보 삭제
-  // 시설에 포함된 모든 사진들 조회
+  // 시설에 포함된 모든 사진들 조회 - 5개만 > 메인 페이지에 보여줄
   // 시설에 포함된 모든 서비스 및 부대시설들 조회
+
   // 시설, 객실들 사진 전체 조회
 }

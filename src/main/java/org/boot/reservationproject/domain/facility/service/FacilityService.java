@@ -472,6 +472,12 @@ public class FacilityService {
       s3Service.deleteFile(facility.getPreviewFacilityPhotoUrl());
     }
   }
+  private void deleteExistingThumbnailPhoto(Room room) {
+    if (room.getPreviewRoomPhotoUrl() != null) {
+      log.info("썸네일 사진 url : {}", room.getPreviewRoomPhotoUrl());
+      s3Service.deleteFile(room.getPreviewRoomPhotoUrl());
+    }
+  }
 
   private void updateFacilityInfo(Long facilityIdx, UpdateFacilityRequest request, String thumbNailPhotoUrl, String thumbNailPhotoName) {
     log.info("이 이름으로 변경 name : {}", request.name());
@@ -487,9 +493,9 @@ public class FacilityService {
 
   private void deleteExistingPhotos(Facility facility) {
     List<Photo> existingPhotos = photoRepository.findByFacility(facility);
+    photoRepository.deleteFacilityPhotos(facility.getId());
     for (Photo photo : existingPhotos) {
       s3Service.deleteFile(photo.getPhotoUrl());
-      photoRepository.delete(photo);
     }
   }
 
@@ -511,22 +517,12 @@ public class FacilityService {
             roomDetail.checkOutTime(),
             roomDetail.price());
       } else {
-        Room newRoom = Room.builder()
-            .facility(facility)
-            .roomName(roomDetail.roomName())
-            .minPeople(roomDetail.minPeople())
-            .maxPeople(roomDetail.maxPeople())
-            .checkInTime(roomDetail.checkInTime())
-            .checkOutTime(roomDetail.checkOutTime())
-            .price(roomDetail.price())
-            .build();
-        roomRepository.save(newRoom);
+        throw new BaseException(ErrorCode.ROOM_NOT_FOUND);
       }
     }
   }
 
   private void updateFacilityDocument(Facility facility, FacilityDocument facilityDocument) {
-    log.info("facility name : {}",facility.getFacilityName());
     facilityDocument.setFacilityName(facility.getFacilityName());
     facilityDocument.setCategory(facility.getCategory());
     facilityDocument.setRegion(facility.getRegion());
@@ -552,20 +548,42 @@ public class FacilityService {
         existingRoomDoc.setStatus(room.getStatus());
         return existingRoomDoc;
       } else {
-        return RoomDocument.builder()
-            .roomIdx(room.getId())
-            .roomName(room.getRoomName())
-            .checkInTime(room.getCheckInTime())
-            .checkOutTime(room.getCheckOutTime())
-            .minPeople(room.getMinPeople())
-            .maxPeople(room.getMaxPeople())
-            .price(room.getPrice())
-            .status(room.getStatus())
-            .checkList(new ArrayList<>())
-            .build();
+        throw new RuntimeException("Elastic Search와 제대로 동기화되지 않음");
       }
     }).collect(Collectors.toList());
 
     facilityDocument.setRooms(updatedRoomDocuments);
+  }
+
+  @CacheEvict(value = "facility", allEntries = true)
+  public void updateRoomPhotos(
+      Long facilityIdx,
+      Long roomIdx,
+      List<MultipartFile> roomPhotos) throws IOException {
+
+    Facility facility = getFacility(facilityIdx);
+    Room room = getRoom(roomIdx);
+
+    // 기존 사진 삭제
+    deleteExistingThumbnailPhoto(room);
+    deleteExistingRoomPhotos(facilityIdx,roomIdx,room);
+
+    String thumbNailPhotoUrl = uploadRoomThumbnailPhoto(roomPhotos.get(0), facility, roomIdx);
+
+    // 썸네일 사진 Room 엔티티에 Update Query
+    roomRepository.updatePreviewPhoto(roomIdx,
+                                      thumbNailPhotoUrl,
+                                      roomPhotos.get(0).getOriginalFilename());
+
+    saveRoomPhotos(roomPhotos, facility, room);
+  }
+
+  private void deleteExistingRoomPhotos(Long facilityIdx, Long roomIdx, Room room) {
+    List<Photo> existingPhotos = photoRepository.findByRoom(room);
+    photoRepository.deleteRoomPhotos(facilityIdx,roomIdx);
+    for (Photo photo : existingPhotos) {
+      s3Service.deleteFile(photo.getPhotoUrl());
+    }
+
   }
 }

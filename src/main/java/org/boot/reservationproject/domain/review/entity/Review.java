@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,6 +44,6 @@ public class Review extends BaseEntity {
   @Column(name = "content", nullable = false, length = 1000)
   private String content;
 
-  @Column(name = "rating", nullable = false)
-  private float rating;
+  @Column(name = "rating", nullable = false, precision = 3, scale = 1)
+  private BigDecimal rating;
 }

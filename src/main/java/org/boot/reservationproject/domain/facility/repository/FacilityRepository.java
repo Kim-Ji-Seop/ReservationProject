@@ -1,5 +1,6 @@
 package org.boot.reservationproject.domain.facility.repository;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.boot.reservationproject.domain.facility.entity.Facility;
 import org.boot.reservationproject.global.Category;
@@ -44,4 +45,12 @@ public interface FacilityRepository extends JpaRepository<Facility,Long> {
       @Param("previewFacilityPhotoUrl") String previewFacilityPhotoUrl,
       @Param("previewFacilityPhotoName") String previewFacilityPhotoName);
 
+  @Modifying
+  @Transactional
+  @Query("UPDATE Facility f SET f.averageRating = :updatedAverageRating, " +
+      "f.numberOfReviews = :numberOfReviews " +
+      "WHERE f.id = :facilityId")
+  void updateRating(@Param("facilityId") Long facilityId,
+      @Param("numberOfReviews") int numberOfReviews,
+      @Param("updatedAverageRating") BigDecimal updatedAverageRating);
 }

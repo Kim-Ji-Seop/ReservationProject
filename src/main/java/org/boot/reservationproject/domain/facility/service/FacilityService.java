@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
+import org.boot.reservationproject.domain.facility.dto.request.RegisterRoomRequest;
 import org.boot.reservationproject.domain.facility.dto.request.RoomDetail;
 import org.boot.reservationproject.domain.facility.dto.request.UpdateFacilityRequest;
 import org.boot.reservationproject.domain.facility.dto.request.UpdateRoomDetail;
@@ -248,7 +249,6 @@ public class FacilityService {
 
     if (getResponse.found()) {
       FacilityDocument facilityDocument = getResponse.source();
-      log.info("ES에 업데이트 할 fac name : {}",facility.getFacilityName());
 
       assert facilityDocument != null;
       updateFacilityDocument(facility, facilityDocument);
@@ -585,5 +585,105 @@ public class FacilityService {
       s3Service.deleteFile(photo.getPhotoUrl());
     }
 
+  }
+
+  @Transactional
+  public void registerRooms(
+      Long facilityIdx,
+      RegisterRoomRequest request,
+      List<MultipartFile> roomPhotos) throws IOException {
+
+    Facility facility = getFacility(facilityIdx);
+
+    // 객실 정보 삽입
+    Room newRoom = insertRooms(facility, request.registerRoom());
+
+    // 썸네일 및 일반 사진 추가
+    addRoomPhotos(facility, newRoom, roomPhotos);
+
+    facility = getFacility(facilityIdx);
+
+    // 엘라스틱 서치에 반영
+    updateElasticsearchIndexWithNewRoom(facility, newRoom);
+  }
+  private Room insertRooms(Facility facility, RoomDetail roomDetail) {
+    Room newRoom = Room.builder()
+        .facility(facility)
+        .roomName(roomDetail.roomName())
+        .minPeople(roomDetail.minPeople())
+        .maxPeople(roomDetail.maxPeople())
+        .checkInTime(roomDetail.checkInTime())
+        .checkOutTime(roomDetail.checkOutTime())
+        .price(roomDetail.price())
+        .build();
+
+    return roomRepository.save(newRoom);
+  }
+
+  private void addRoomPhotos(Facility facility, Room room, List<MultipartFile> roomPhotos) throws IOException {
+
+    // 썸네일 사진 업로드
+    MultipartFile thumbNailPhoto = roomPhotos.get(0); // Assuming thumbnail and other photos are paired
+    String thumbNailPhotoUrl = s3Service.uploadFileAndGetUrl(
+        thumbNailPhoto,
+        "facilities/" + facility.getCategory().toString().toLowerCase()
+            + "/" + facility.getFacilityName() + "/room" + room.getId() + "/thumb-nail");
+
+    // 썸네일 사진 Room 엔티티에 Update Query
+    roomRepository.updatePreviewPhoto(room.getId(), thumbNailPhotoUrl, thumbNailPhoto.getOriginalFilename());
+
+    for(MultipartFile roomPhoto : roomPhotos){
+      String roomPhotoUrl = s3Service.uploadFileAndGetUrl(
+          roomPhoto,
+          "facilities/" + facility.getCategory().toString().toLowerCase()
+              + "/" + facility.getFacilityName() + "/room" + room.getId());
+      // Photo 엔티티 생성 및 저장
+      Photo photo = Photo.builder()
+          .facility(facility)
+          .room(room)
+          .photoUrl(roomPhotoUrl)
+          .photoName(roomPhoto.getOriginalFilename())
+          .build();
+      photoRepository.save(photo);
+    }
+  }
+
+  private void updateElasticsearchIndexWithNewRoom(Facility facility, Room newRoom) throws IOException {
+    // 이미 존재하는 Document Get
+    GetResponse<FacilityDocument> getResponse = elasticsearchClient.get(g -> g
+        .index("facilities")
+        .id(facility.getId().toString()), FacilityDocument.class);
+
+    if (getResponse.found()) {
+      FacilityDocument facilityDocument = getResponse.source();
+
+      assert facilityDocument != null;
+
+      // 새로운 객실 정보 추가
+      RoomDocument newRoomDocument = RoomDocument.builder()
+          .roomIdx(newRoom.getId())
+          .roomName(newRoom.getRoomName())
+          .checkInTime(newRoom.getCheckInTime())
+          .checkOutTime(newRoom.getCheckOutTime())
+          .minPeople(newRoom.getMinPeople())
+          .maxPeople(newRoom.getMaxPeople())
+          .price(newRoom.getPrice())
+          .status(newRoom.getStatus())
+          .checkList(new ArrayList<>())
+          .build();
+
+      facilityDocument.getRooms().add(newRoomDocument);
+
+      // Doc 업데이트
+      UpdateResponse<FacilityDocument> updateResponse = elasticsearchClient.update(u -> u
+              .index("facilities")
+              .id(facility.getId().toString())
+              .doc(facilityDocument),
+          FacilityDocument.class);
+
+      log.info("Update response: {}", updateResponse);
+    } else {
+      log.warn("ES에서 해당 Document를 찾을 수 없습니다 id: {}", facility.getId());
+    }
   }
 }

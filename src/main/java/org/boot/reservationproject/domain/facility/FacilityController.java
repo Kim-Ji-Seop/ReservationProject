@@ -6,8 +6,8 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.boot.reservationproject.domain.facility.dto.request.RegisterRoomRequest;
 import org.boot.reservationproject.domain.facility.dto.request.UpdateFacilityRequest;
-import org.boot.reservationproject.domain.facility.dto.response.FacilitiesInformationPreviewResponse;
 import org.boot.reservationproject.domain.facility.dto.request.RegisterFacilityRequest;
 import org.boot.reservationproject.domain.facility.dto.response.FacilitiesPageResponse;
 import org.boot.reservationproject.domain.facility.dto.response.FacilityInformationDetailResponse;
@@ -16,7 +16,6 @@ import org.boot.reservationproject.domain.facility.service.FacilityService;
 import org.boot.reservationproject.global.Category;
 import org.boot.reservationproject.global.convertor.CategoryConverter;
 import org.boot.reservationproject.global.error.BaseResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -104,6 +102,7 @@ public class FacilityController {
 
     facilityService.updateFacility(facilityIdx, request, facilityPhotos);
   }
+
   // 객실 사진 수정
   @PatchMapping(value = "/room-photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public void updateRoomPhotos(
@@ -113,11 +112,21 @@ public class FacilityController {
 
     facilityService.updateRoomPhotos(facilityIdx, roomIdx, roomPhotos);
   }
-  // 객실 추가
-  // 객실 삭제
 
-  // 시설에 포함된 모든 사진들 조회 - 5개만 > 메인 페이지에 보여줄
+  // 객실 추가(하나씩 추가) - ES 동기화
+  @PostMapping(value = "/registration/additional-rooms", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public void registerRooms(
+      @RequestParam("facilityIdx") Long facilityIdx,
+      @RequestPart("roomRequest") RegisterRoomRequest request,
+      @RequestPart("roomPhotos") List<MultipartFile> roomPhotos) throws IOException {
+
+    facilityService.registerRooms(facilityIdx, request, roomPhotos);
+  }
+  // 객실 삭제 - ES 동기화 (소프트 딜리트)
+  // 객실 DELETE >
+
+
   // 시설에 포함된 모든 서비스 및 부대시설들 조회
 
-  // 시설, 객실들 사진 전체 조회
+  // 시설, 객실들 사진 전체 조회 > 쿼리스트링
 }

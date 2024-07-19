@@ -1,5 +1,6 @@
 package org.boot.reservationproject.domain.review;
 
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.boot.reservationproject.domain.customer.entity.Customer;
@@ -24,7 +25,7 @@ public class ReviewController {
   public void writeReviews(
       @PathVariable Long facilityIdx, @PathVariable Long roomIdx,
       @RequestPart("reviewContent") WriteReviewRequest writeReviewRequest,
-      @RequestPart("reviewPhotos") List<MultipartFile> reviewPhotos) {
+      @RequestPart("reviewPhotos") List<MultipartFile> reviewPhotos) throws IOException {
     String customerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
     reviewService.writeReviews(facilityIdx,roomIdx,customerEmail,writeReviewRequest,reviewPhotos);
   }

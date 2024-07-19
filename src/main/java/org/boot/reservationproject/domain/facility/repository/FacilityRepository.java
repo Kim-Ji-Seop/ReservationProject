@@ -45,7 +45,7 @@ public interface FacilityRepository extends JpaRepository<Facility,Long> {
       @Param("previewFacilityPhotoUrl") String previewFacilityPhotoUrl,
       @Param("previewFacilityPhotoName") String previewFacilityPhotoName);
 
-  @Modifying
+  @Modifying(clearAutomatically=true)
   @Transactional
   @Query("UPDATE Facility f SET f.averageRating = :updatedAverageRating, " +
       "f.numberOfReviews = :numberOfReviews " +

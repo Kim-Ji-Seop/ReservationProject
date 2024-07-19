@@ -4,6 +4,7 @@ import java.util.List;
 import org.boot.reservationproject.domain.facility.entity.Facility;
 import org.boot.reservationproject.domain.facility.entity.Photo;
 import org.boot.reservationproject.domain.facility.entity.Room;
+import org.boot.reservationproject.global.BaseEntity.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -27,4 +28,9 @@ public interface PhotoRepository extends JpaRepository<Photo,Long> {
   @Transactional
   @Query("DELETE FROM Photo p WHERE p.facility.id = :facilityId AND p.room.id = :roomId")
   void deleteRoomPhotos(@Param("facilityId") Long facilityId, @Param("roomId") Long roomId);
+
+  @Modifying
+  @Transactional
+  @Query("UPDATE Photo p SET p.status = :status WHERE p.room.id = :roomId")
+  void updatePhotoStatusByRoom(@Param("roomId") Long roomId, @Param("status") Status status);
 }

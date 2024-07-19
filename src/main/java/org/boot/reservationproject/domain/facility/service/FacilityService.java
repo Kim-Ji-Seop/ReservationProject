@@ -37,6 +37,7 @@ import org.boot.reservationproject.domain.facility.repository.FacilitySubsidiary
 import org.boot.reservationproject.domain.facility.repository.PhotoRepository;
 import org.boot.reservationproject.domain.facility.repository.RoomRepository;
 import org.boot.reservationproject.domain.facility.repository.SubsidiaryRepository;
+import org.boot.reservationproject.domain.reservation.repository.ReservationRepository;
 import org.boot.reservationproject.domain.search.document.FacilityDocument;
 import org.boot.reservationproject.domain.search.document.RoomDocument;
 import org.boot.reservationproject.domain.search.service.FacilitySearchService;
@@ -68,8 +69,7 @@ public class FacilityService {
   private final S3Service s3Service;
   private final FacilitySearchService facilitySearchService;
   private final ElasticsearchClient elasticsearchClient;
-  private final EntityManager entityManager;
-
+  private final ReservationRepository reservationRepository;
   @Transactional
   @CacheEvict(value = "facility", allEntries = true)
   public RegisterFacilityResponse registerFacility(
@@ -106,7 +106,7 @@ public class FacilityService {
         .build();
   }
 
-  @CacheEvict(value = "facility", allEntries = true)
+  @CacheEvict(value = "facilityDetails", allEntries = true)
   public void registerRoomPhotos(
       Long facilityIdx, Long roomIdx,
       List<MultipartFile> roomPhotos) throws IOException {
@@ -125,7 +125,7 @@ public class FacilityService {
   }
 
   @Transactional(readOnly = true)
-  @Cacheable(value = "facility", key = "#category.name() + '-' + #checkInDate.toString() + '-' + #checkOutDate.toString() + '-' + #personal + '-' + #pageable.pageNumber")
+  @Cacheable(value = "facilityDetails", key = "#category.name() + '-' + #checkInDate.toString() + '-' + #checkOutDate.toString() + '-' + #personal + '-' + #pageable.pageNumber")
   public FacilitiesPageResponse getFacilitiesPreview( Category category,
                                                       LocalDate checkInDate,
                                                       LocalDate checkOutDate,
@@ -145,7 +145,7 @@ public class FacilityService {
   }
   private FacilitiesInformationPreviewResponse convertToDtoWithFilter(Facility facility, LocalDate checkInDate, LocalDate checkOutDate, int personal) {
     List<Room> availableRooms = facility.getRooms().stream()
-        .filter(room -> room.getMinPeople() <= personal && room.getMaxPeople() >= personal)
+        .filter(room -> room.getMinPeople() <= personal && room.getMaxPeople() >= personal && room.getStatus().equals(Status.ACTIVE))
         .filter(room -> room.getReservations().stream().noneMatch(reservation ->
             (checkInDate.isBefore(reservation.getCheckoutDate()) && checkOutDate.isAfter(reservation.getCheckinDate())) &&
                 (reservation.getStatus() == Status.PAYMENT_FINISH || reservation.getStatus() == Status.PAYMENT_WAIT)
@@ -191,7 +191,9 @@ public class FacilityService {
 
     Facility facility = facilityRepository.findFacilityWithRooms(facilityIdx)
         .orElseThrow(() -> new BaseException(ErrorCode.FACILITY_NOT_FOUND));
-
+    for(Room room : facility.getRooms()){
+      log.info("room's status : {}",room.getStatus());
+    }
     List<RoomPreviews> roomPreviewsList = getAvailableRooms(facility, checkInDate, checkOutDate, personal);
     List<String> subsidiaryDetails = getSubsidiaryDetails(facilityIdx);
 
@@ -200,7 +202,7 @@ public class FacilityService {
 
 
   @Transactional
-  @CacheEvict(value = "facility", allEntries = true)
+  @CacheEvict(value = "facilityDetails", allEntries = true)
   public void updateFacility(
       Long facilityIdx,
       UpdateFacilityRequest request,
@@ -429,7 +431,7 @@ public class FacilityService {
 
   private List<RoomPreviews> getAvailableRooms(Facility facility, LocalDate checkInDate, LocalDate checkOutDate, int personal){
     return facility.getRooms().stream()
-        .filter(room -> (room.getMinPeople() <= personal) && (room.getMaxPeople() >= personal))
+        .filter(room -> (room.getStatus().equals(Status.ACTIVE) && room.getMinPeople() <= personal && room.getMaxPeople() >= personal))
         .filter(room -> room.getReservations().stream().noneMatch(reservation ->
             (checkInDate.isBefore(reservation.getCheckoutDate()) && checkOutDate.isAfter(reservation.getCheckinDate())) &&
                 (reservation.getStatus() == Status.PAYMENT_FINISH || reservation.getStatus() == Status.PAYMENT_WAIT)
@@ -555,7 +557,7 @@ public class FacilityService {
     facilityDocument.setRooms(updatedRoomDocuments);
   }
 
-  @CacheEvict(value = "facility", allEntries = true)
+  @CacheEvict(value = "facilityDetails", allEntries = true)
   public void updateRoomPhotos(
       Long facilityIdx,
       Long roomIdx,
@@ -588,6 +590,7 @@ public class FacilityService {
   }
 
   @Transactional
+  @CacheEvict(value = "facilityDetails", allEntries = true)
   public void registerRooms(
       Long facilityIdx,
       RegisterRoomRequest request,
@@ -685,5 +688,23 @@ public class FacilityService {
     } else {
       log.warn("ES에서 해당 Document를 찾을 수 없습니다 id: {}", facility.getId());
     }
+  }
+
+  @Transactional
+  @CacheEvict(value = "facilityDetails", allEntries = true)
+  public void deleteRooms(Long facilityIdx, Long roomIdx) throws IOException {
+
+    // Room 상태를 DELETE로 변경
+    roomRepository.updateRoomStatus(roomIdx, Status.DELETE);
+
+    // 해당 Room과 관련된 Photo 상태를 DELETE로 변경
+    photoRepository.updatePhotoStatusByRoom(roomIdx, Status.DELETE);
+
+    // 해당 Room과 관련된 Reservation 상태를 DELETE로 변경
+    reservationRepository.updateReservationStatusByRoom(roomIdx, Status.DELETE);
+
+    Facility facility = getFacility(facilityIdx);
+    // 업데이트 사항을 ES에도 동기화
+    updateElasticsearchIndex(facility);
   }
 }

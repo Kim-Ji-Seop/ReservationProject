@@ -117,14 +117,20 @@ public class FacilityController {
   @PostMapping(value = "/registration/additional-rooms", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public void registerRooms(
       @RequestParam("facilityIdx") Long facilityIdx,
-      @RequestPart("roomRequest") RegisterRoomRequest request,
+      @Valid @RequestPart("roomRequest") RegisterRoomRequest request,
       @RequestPart("roomPhotos") List<MultipartFile> roomPhotos) throws IOException {
 
     facilityService.registerRooms(facilityIdx, request, roomPhotos);
   }
-  // 객실 삭제 - ES 동기화 (소프트 딜리트)
-  // 객실 DELETE >
 
+  // 객실 삭제 - ES 동기화 (소프트 딜리트)
+  @PatchMapping("/rooms/inactive")
+  public void deleteRooms(
+      @RequestParam("facilityIdx") Long facilityIdx,
+      @RequestParam("roomIdx") Long roomIdx) throws IOException {
+
+    facilityService.deleteRooms(facilityIdx,roomIdx);
+  }
 
   // 시설에 포함된 모든 서비스 및 부대시설들 조회
 

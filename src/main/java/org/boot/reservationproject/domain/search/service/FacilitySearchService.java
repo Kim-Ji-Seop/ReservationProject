@@ -123,6 +123,7 @@ public class FacilitySearchService {
 
   private FacilityDocument filterRoomsByAvailability(FacilityDocument document, LocalDate checkInDate, LocalDate checkOutDate, int personal) {
     List<RoomDocument> availableRooms = document.getRooms().stream()
+        .filter(room -> room.getStatus() != Status.DELETE)
         .filter(room -> (room.getMinPeople() <= personal) && (room.getMaxPeople() >= personal))
         .filter(room -> room.getCheckList().stream().noneMatch(checkList ->
             (checkInDate.isBefore(checkList.getCheckOutDate()) && checkOutDate.isAfter(checkList.getCheckInDate())) &&

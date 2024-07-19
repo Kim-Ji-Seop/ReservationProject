@@ -105,7 +105,7 @@ public class FacilityController {
     facilityService.updateFacility(facilityIdx, request, facilityPhotos);
   }
   // 객실 사진 수정
-  @PatchMapping(value = "/registration/room-photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PatchMapping(value = "/room-photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public void updateRoomPhotos(
       @RequestParam("facilityIdx") Long facilityIdx,
       @RequestParam("roomIdx") Long roomIdx,

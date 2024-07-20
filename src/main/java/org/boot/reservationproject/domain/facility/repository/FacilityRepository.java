@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import org.boot.reservationproject.domain.facility.entity.Facility;
 import org.boot.reservationproject.global.Category;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface FacilityRepository extends JpaRepository<Facility,Long> {
-  Page<Facility> findAll(Pageable pageable);
+  @NotNull
+  Page<Facility> findAll(@NotNull Pageable pageable);
 
   Page<Facility> findByCategory(Category category, Pageable pageable);
 

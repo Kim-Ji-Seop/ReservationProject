@@ -6,6 +6,8 @@ import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,13 +15,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.boot.reservationproject.domain.customer.entity.Customer;
 import org.boot.reservationproject.domain.customer.repository.CustomerRepository;
+import org.boot.reservationproject.domain.facility.dto.response.FacilitiesPageResponse.PageMetadata;
 import org.boot.reservationproject.domain.facility.entity.Facility;
 import org.boot.reservationproject.domain.facility.entity.Photo;
 import org.boot.reservationproject.domain.facility.entity.Room;
 import org.boot.reservationproject.domain.facility.repository.FacilityRepository;
 import org.boot.reservationproject.domain.facility.repository.PhotoRepository;
 import org.boot.reservationproject.domain.facility.repository.RoomRepository;
-import org.boot.reservationproject.domain.review.dto.WriteReviewRequest;
+import org.boot.reservationproject.domain.review.dto.request.WriteReviewRequest;
+import org.boot.reservationproject.domain.review.dto.response.ReviewDetail;
+import org.boot.reservationproject.domain.review.dto.response.ReviewRatingResponse;
+import org.boot.reservationproject.domain.review.dto.response.ReviewsPageResponse;
 import org.boot.reservationproject.domain.review.entity.Review;
 import org.boot.reservationproject.domain.review.repository.ReviewRepository;
 import org.boot.reservationproject.domain.search.document.FacilityDocument;
@@ -27,6 +33,8 @@ import org.boot.reservationproject.domain.search.document.RoomDocument;
 import org.boot.reservationproject.global.error.BaseException;
 import org.boot.reservationproject.global.error.ErrorCode;
 import org.boot.reservationproject.global.s3.S3Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -186,5 +194,62 @@ public class ReviewService {
         .divide(BigDecimal.valueOf(currentNumberOfReviews + 1), 1, RoundingMode.HALF_UP); // 소수점 이하 한 자리, 반올림
 
     facilityRepository.updateRating(facility.getId(),currentNumberOfReviews + 1,updatedAverageRating);
+  }
+
+  public ReviewRatingResponse getReviewRating(Long facilityIdx) {
+    Facility facility = getFacility(facilityIdx);
+    return ReviewRatingResponse.builder()
+        .rating(facility.getAverageRating())
+        .numberOfReviews(facility.getNumberOfReviews())
+        .build();
+  }
+
+  public ReviewsPageResponse getReviewList(Long facilityIdx, Pageable pageable) {
+    Page<Review> reviews = reviewRepository.findByFacilityId(facilityIdx, pageable);
+    List<ReviewDetail> reviewDetails = reviews.getContent().stream()
+        .map(this::convertToReviewDetail)
+        .collect(Collectors.toList());
+
+    PageMetadata pageMetadata = new PageMetadata(
+        reviews.getNumber(),
+        reviews.getSize(),
+        reviews.getTotalElements(),
+        reviews.getTotalPages(),
+        reviews.isLast(),
+        reviews.isFirst(),
+        reviews.getNumberOfElements(),
+        reviews.isEmpty()
+    );
+
+    return new ReviewsPageResponse(reviewDetails, pageMetadata);
+  }
+
+  private ReviewDetail convertToReviewDetail(Review review) {
+    return new ReviewDetail(
+        review.getId(),
+        review.getCustomer().getNickname(),
+        review.getRating(),
+        calculateTimeAgo(review.getCreatedAt()),
+        review.getRoom().getRoomName(),
+        review.getContent()
+    );
+  }
+
+  private String calculateTimeAgo(LocalDateTime createdAt) {
+    // 작성 시간과 현재 시간의 차이를 계산하여 "1분 전", "1주 전" 등으로 변환하는 로직
+    Duration duration = Duration.between(createdAt, LocalDateTime.now());
+    if (duration.toMinutes() < 1) {
+      return "방금 전";
+    } else if (duration.toMinutes() < 60) {
+      return duration.toMinutes() + "분 전";
+    } else if (duration.toHours() < 24) {
+      return duration.toHours() + "시간 전";
+    } else if (duration.toDays() < 7) {
+      return duration.toDays() + "일 전";
+    } else if (duration.toDays() < 30) {
+      return duration.toDays() / 7 + "주 전";
+    } else {
+      return duration.toDays() / 30 + "개월 전";
+    }
   }
 }

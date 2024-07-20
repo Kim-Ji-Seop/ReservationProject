@@ -1,4 +1,4 @@
-package org.boot.reservationproject.domain.review.dto;
+package org.boot.reservationproject.domain.review.dto.request;
 
 import java.math.BigDecimal;
 

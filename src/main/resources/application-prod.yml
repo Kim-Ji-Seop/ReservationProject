@@ -20,8 +20,6 @@ spring:
       uris: ${ES_URI}
       username: ${ES_USERNAME}
       password: ${ES_PASSWORD}
-      ssl:
-        trust-store-location: ${ES_SSL_REFERENCE}
   servlet:
     multipart:
       max-file-size: 50MB

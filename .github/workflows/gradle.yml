@@ -46,7 +46,6 @@ jobs:
         ES_URI: ${{ secrets.ES_URI }}
         ES_USERNAME: ${{ secrets.ES_USERNAME }}
         ES_PASSWORD: ${{ secrets.ES_PASSWORD }}
-        ES_SSL_REFERENCE: ${{ secrets.ES_SSL_REFERENCE }}
         IAMPORT_API_KEY: ${{ secrets.IAMPORT_API_KEY }}
         IAMPORT_SECRET_KEY: ${{ secrets.IAMPORT_SECRET_KEY }}
 
@@ -64,7 +63,6 @@ jobs:
         echo ES_URI=${{ secrets.ES_URI }} >> .env
         echo ES_USERNAME=${{ secrets.ES_USERNAME }} >> .env
         echo ES_PASSWORD=${{ secrets.ES_PASSWORD }} >> .env
-        echo ES_SSL_REFERENCE=${{ secrets.ES_SSL_REFERENCE }} >> .env
         echo IAMPORT_API_KEY=${{ secrets.IAMPORT_API_KEY }} >> .env
         echo IAMPORT_SECRET_KEY=${{ secrets.IAMPORT_SECRET_KEY }} >> .env
 

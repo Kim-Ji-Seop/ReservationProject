@@ -7,7 +7,7 @@ services:
     env_file: .env
     ports:
       - 8082:8082
-    restart: on-failure
+    #restart: on-failure
     environment:
       TZ: "Asia/Seoul" # timezone 설정
     depends_on:
@@ -35,7 +35,7 @@ services:
   redis:
     image: redis:latest
     container_name: redis
-    restart: on-failure
+    #restart: on-failure
     hostname: redis
     ports:
       - 6379:6379

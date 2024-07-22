@@ -27,7 +27,7 @@ public interface FacilityRepository extends JpaRepository<Facility,Long> {
       + "WHERE f.id = :facilityIdx")
   Optional<Facility> findFacilityWithRooms(@Param("facilityIdx") Long facilityIdx);
 
-  @Modifying(clearAutomatically=true) // JPA 1차캐시 <-> DB 동기화 문제
+  @Modifying(clearAutomatically=true, flushAutomatically = true) // JPA 1차캐시 <-> DB 동기화 문제
   @Transactional
   @Query("UPDATE Facility f "
       + "SET f.facilityName = :facilityName, "
@@ -47,7 +47,7 @@ public interface FacilityRepository extends JpaRepository<Facility,Long> {
       @Param("previewFacilityPhotoUrl") String previewFacilityPhotoUrl,
       @Param("previewFacilityPhotoName") String previewFacilityPhotoName);
 
-  @Modifying(clearAutomatically=true)
+  @Modifying(clearAutomatically=true, flushAutomatically = true)
   @Transactional
   @Query("UPDATE Facility f SET f.averageRating = :updatedAverageRating, " +
       "f.numberOfReviews = :numberOfReviews " +

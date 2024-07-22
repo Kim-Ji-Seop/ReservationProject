@@ -23,7 +23,7 @@ public interface RoomRepository extends JpaRepository<Room,Long> {
       @Param("previewRoomPhotoUrl") String previewRoomPhotoUrl,
       @Param("previewRoomPhotoName") String previewPhotoName);
 
-  @Modifying(clearAutomatically = true)
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Transactional
   @Query("UPDATE Room r "
       + "SET r.roomName = :roomName, "

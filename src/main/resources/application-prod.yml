@@ -17,7 +17,7 @@ spring:
     suffix: .html
   elasticsearch:
     rest:
-      uris: ${ES_URI}
+      uris: http://${ES_URI}:9200
       username: ${ES_USERNAME}
       password: ${ES_PASSWORD}
   servlet:

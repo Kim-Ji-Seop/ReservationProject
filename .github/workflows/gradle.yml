@@ -72,14 +72,14 @@ jobs:
     - name: server docker build and push
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/capstone-design-server .
-        docker push ${{ secrets.DOCKER_REPO }}/capstone-design-server
+        docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/reservation-server .
+        docker push ${{ secrets.DOCKER_REPO }}/reservation-server
 
     - name: nginx docker build and push
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -f Dockerfile-nginx -t ${{ secrets.DOCKER_REPO }}/capstone-design-nginx .
-        docker push ${{ secrets.DOCKER_REPO }}/capstone-design-nginx
+        docker build -f Dockerfile-nginx -t ${{ secrets.DOCKER_REPO }}/reservation-server .
+        docker push ${{ secrets.DOCKER_REPO }}/reservation-server
 
 
     - name: Copy docker-compose.yaml to EC2

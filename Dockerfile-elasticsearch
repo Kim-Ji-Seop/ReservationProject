@@ -4,8 +4,8 @@ FROM docker.elastic.co/elasticsearch/elasticsearch:8.14.3
 RUN elasticsearch-plugin install analysis-nori
 
 # JVM 옵션 설정
-RUN echo "-Xms512m" >> /usr/share/elasticsearch/config/jvm.options.d/custom.options && \
-    echo "-Xmx512m" >> /usr/share/elasticsearch/config/jvm.options.d/custom.options
+RUN echo "-Xms1g" >> /usr/share/elasticsearch/config/jvm.options.d/custom.options && \
+    echo "-Xmx1g" >> /usr/share/elasticsearch/config/jvm.options.d/custom.options
 
 # 환경 변수 설정
 ENV discovery.type=single-node \

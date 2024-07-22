@@ -12,7 +12,7 @@ services:
       TZ: "Asia/Seoul" # timezone 설정
     depends_on:
       - redis
-      - es01
+#      - es01
     logging:
       options:
         max-size: "200m"
@@ -46,25 +46,25 @@ services:
         max-size: "100m"
         max-file: "5"
 
-  es01:
-    image: kimjiseop/elasticsearch-nori
-    container_name: es01
-    environment:
-      - discovery.type=single-node
-      - network.host=0.0.0.0
-      - xpack.security.enabled=false
-      - ELASTIC_PASSWORD=elastic
-      - xpack.security.http.ssl.enabled=false
-      - xpack.security.transport.ssl.enabled=false
-    ports:
-      - 9200:9200
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsSL http://localhost:9200/_cat/plugins | grep -q analysis-nori"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+#  es01:
+#    image: kimjiseop/elasticsearch-nori
+#    container_name: es01
+#    environment:
+#      - discovery.type=single-node
+#      - network.host=0.0.0.0
+#      - xpack.security.enabled=false
+#      - ELASTIC_PASSWORD=elastic
+#      - xpack.security.http.ssl.enabled=false
+#      - xpack.security.transport.ssl.enabled=false
+#    ports:
+#      - 9200:9200
+#    volumes:
+#      - esdata:/usr/share/elasticsearch/data
+#    healthcheck:
+#      test: ["CMD-SHELL", "curl -fsSL http://localhost:9200/_cat/plugins | grep -q analysis-nori"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
 volumes:
   redis-data:
-  esdata:
+#  esdata:

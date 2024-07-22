@@ -12,7 +12,7 @@ services:
       TZ: "Asia/Seoul" # timezone 설정
     depends_on:
       - redis
-      - es01
+      #- es01
     logging:
       options:
         max-size: "200m"

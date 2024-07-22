@@ -58,15 +58,15 @@ jobs:
         echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
         echo JWT_TOKEN=${{ secrets.JWT_TOKEN }} >> .env
         echo SERVER_PORT=${{ secrets.SERVER_PORT }} >> .env
-        echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}
-        echo S3_CREDENTIAL_ACCESS_KEY=${{ secrets.S3_CREDENTIAL_ACCESS_KEY }}
-        echo S3_CREDENTIAL_SECRET_KEY=${{ secrets.S3_CREDENTIAL_SECRET_KEY }}
-        echo ES_URI=${{ secrets.ES_URI }}
-        echo ES_USERNAME=${{ secrets.ES_USERNAME }}
-        echo ES_PASSWORD=${{ secrets.ES_PASSWORD }}
-        echo ES_SSL_REFERENCE=${{ secrets.ES_SSL_REFERENCE }}
-        echo IAMPORT_API_KEY=${{ secrets.IAMPORT_API_KEY }}
-        echo IAMPORT_SECRET_KEY=${{ secrets.IAMPORT_SECRET_KEY }}
+        echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} >> .env
+        echo S3_CREDENTIAL_ACCESS_KEY=${{ secrets.S3_CREDENTIAL_ACCESS_KEY }} >> .env
+        echo S3_CREDENTIAL_SECRET_KEY=${{ secrets.S3_CREDENTIAL_SECRET_KEY }} >> .env
+        echo ES_URI=${{ secrets.ES_URI }} >> .env
+        echo ES_USERNAME=${{ secrets.ES_USERNAME }} >> .env
+        echo ES_PASSWORD=${{ secrets.ES_PASSWORD }} >> .env
+        echo ES_SSL_REFERENCE=${{ secrets.ES_SSL_REFERENCE }} >> .env
+        echo IAMPORT_API_KEY=${{ secrets.IAMPORT_API_KEY }} >> .env
+        echo IAMPORT_SECRET_KEY=${{ secrets.IAMPORT_SECRET_KEY }} >> .env
 
     ## 이미지 빌드 및 도커허브에 push
     - name: server docker build and push

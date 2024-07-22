@@ -3,6 +3,7 @@ package org.boot.reservationproject.domain.reservation;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,7 @@ public class ReservationController {
    *
    */
   @PostMapping
-  public void reserve(@RequestBody CreateReservationRequest request) throws IOException {
+  public void reserve(@Valid @RequestBody CreateReservationRequest request) throws IOException {
     String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
     reservationService.reserveFacility(request, userEmail);
   }
@@ -41,7 +42,7 @@ public class ReservationController {
 
   // 테스트 결제 완료
   @PostMapping("/payments/complete")
-  public void completePayment(@RequestBody PaymentRequest request)
+  public void completePayment(@Valid @RequestBody PaymentRequest request)
       throws IamportResponseException, IOException {
     log.info("mid : {}",request.merchantUid());
     reservationService.completePayment(request);

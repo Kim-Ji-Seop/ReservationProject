@@ -1,8 +1,10 @@
 package org.boot.reservationproject.domain.customer.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record UpdateCustomerInfoRequest(
-    String nickname,
-    String name
+    @NotBlank String nickname,
+    @NotBlank String name
 ) {
 
 }

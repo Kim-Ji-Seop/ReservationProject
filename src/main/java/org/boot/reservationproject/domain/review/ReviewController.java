@@ -1,5 +1,6 @@
 package org.boot.reservationproject.domain.review;
 
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class ReviewController {
   @PostMapping(value = "/{facilityIdx}/{roomIdx}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public void writeReviews(
       @PathVariable Long facilityIdx, @PathVariable Long roomIdx,
-      @RequestPart("reviewContent") WriteReviewRequest writeReviewRequest,
+      @Valid @RequestPart("reviewContent") WriteReviewRequest writeReviewRequest,
       @RequestPart("reviewPhotos") List<MultipartFile> reviewPhotos) throws IOException {
     String customerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
     reviewService.writeReviews(facilityIdx,roomIdx,customerEmail,writeReviewRequest,reviewPhotos);

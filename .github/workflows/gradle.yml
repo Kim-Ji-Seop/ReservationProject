@@ -116,6 +116,7 @@ jobs:
         script: |
           sudo docker pull ${{ secrets.DOCKER_REPO }}/reservation-server
           sudo docker pull ${{ secrets.DOCKER_REPO }}/reservation-nginx
+          sudo docker pull ${{ secrets.DOCKER_REPO }}/elasticsearch-nori
           sudo docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml down
           sudo docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml up -d --force-recreate
           sudo docker image prune -f

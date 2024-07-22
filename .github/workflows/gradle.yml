@@ -2,7 +2,7 @@ name: Java CI/CD with Docker
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "feature/deploy" ]
   pull_request:
     branches: [ "main" ]
 
@@ -110,8 +110,8 @@ jobs:
         username: ubuntu
         key: ${{ secrets.KEY }}
         script: |
-          sudo docker pull ${{ secrets.DOCKER_REPO }}/capstone-design-server
-          sudo docker pull ${{ secrets.DOCKER_REPO }}/capstone-design-nginx
+          sudo docker pull ${{ secrets.DOCKER_REPO }}/reservation-server
+          sudo docker pull ${{ secrets.DOCKER_REPO }}/reservation-nginx
           sudo docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml down
           sudo docker-compose -f /home/ubuntu/github/workspace/docker-compose.yaml up -d --force-recreate
           docker image prune -f

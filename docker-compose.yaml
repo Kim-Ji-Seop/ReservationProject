@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   server:
-    image: kimjiseop/capstone-design-server
+    image: kimjiseop/reservation-server
     container_name: server
     env_file: .env
     ports:
@@ -19,7 +19,7 @@ services:
         max-file: "10"
 
   nginx:
-    image: kimjiseop/capstone-design-nginx
+    image: kimjiseop/reservation-nginx
     container_name: nginx-container
     ports:
       - "80:80"

@@ -1,8 +1,10 @@
 package org.boot.reservationproject.domain.facility.repository;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.boot.reservationproject.domain.facility.entity.Facility;
 import org.boot.reservationproject.global.Category;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface FacilityRepository extends JpaRepository<Facility,Long> {
-  Page<Facility> findAll(Pageable pageable);
+  @NotNull
+  Page<Facility> findAll(@NotNull Pageable pageable);
 
   Page<Facility> findByCategory(Category category, Pageable pageable);
 
@@ -44,4 +47,12 @@ public interface FacilityRepository extends JpaRepository<Facility,Long> {
       @Param("previewFacilityPhotoUrl") String previewFacilityPhotoUrl,
       @Param("previewFacilityPhotoName") String previewFacilityPhotoName);
 
+  @Modifying(clearAutomatically=true)
+  @Transactional
+  @Query("UPDATE Facility f SET f.averageRating = :updatedAverageRating, " +
+      "f.numberOfReviews = :numberOfReviews " +
+      "WHERE f.id = :facilityId")
+  void updateRating(@Param("facilityId") Long facilityId,
+      @Param("numberOfReviews") int numberOfReviews,
+      @Param("updatedAverageRating") BigDecimal updatedAverageRating);
 }

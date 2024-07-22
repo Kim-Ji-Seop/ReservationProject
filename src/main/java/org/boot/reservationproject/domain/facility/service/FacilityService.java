@@ -4,7 +4,6 @@ package org.boot.reservationproject.domain.facility.service;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.UpdateResponse;
-import jakarta.persistence.EntityManager;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;

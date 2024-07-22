@@ -5,6 +5,7 @@ import static org.boot.reservationproject.global.error.ErrorCode.INTERNAL_SERVER
 import static org.boot.reservationproject.global.error.ErrorCode.INVALID_VALUE;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,7 +29,13 @@ public class GlobalExceptionHandler {
         .status(e.getCode())
         .body(new BaseResponse<>(e));
   }
-
+  @ExceptionHandler(IOException.class)
+  public ResponseEntity<BaseResponse<?>> handleIOException(IOException e, HttpServletRequest request) {
+    log.error("[IOException] url: {}", request.getRequestURL(), e);
+    return ResponseEntity
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(new BaseResponse<>(ErrorCode.INTERNAL_SERVER_ERROR));
+  }
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ValidationErrorResponse> handleValidationException(
       MethodArgumentNotValidException e,

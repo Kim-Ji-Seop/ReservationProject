@@ -46,13 +46,18 @@ services:
         max-size: "100m"
         max-file: "5"
 
-  es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
-    container_name: es01
-    environment:
-      - discovery.type=single-node
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+#  es01:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
+#    container_name: es01
+#    environment:
+#      - discovery.type=single-node
+#    ports:
+#      - "9200:9200"
+#      - "9300:9300"
+#    volumes:
+#      - esdata:/usr/share/elasticsearch/data
+#      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+
 volumes:
   redis-data:
+  esdata:

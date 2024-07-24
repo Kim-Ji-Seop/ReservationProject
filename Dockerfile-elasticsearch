@@ -1,0 +1,16 @@
+FROM docker.elastic.co/elasticsearch/elasticsearch:8.14.3
+
+# nori-analyzer 플러그인 설치
+RUN elasticsearch-plugin install analysis-nori
+
+# JVM 옵션 설정
+RUN echo "-Xms1g" >> /usr/share/elasticsearch/config/jvm.options.d/custom.options && \
+    echo "-Xmx1g" >> /usr/share/elasticsearch/config/jvm.options.d/custom.options
+
+# 환경 변수 설정
+ENV discovery.type=single-node \
+    network.host=0.0.0.0 \
+    xpack.security.enabled=false \
+    ELASTIC_PASSWORD=elastic \
+    xpack.security.http.ssl.enabled=false \
+    xpack.security.transport.ssl.enabled=false

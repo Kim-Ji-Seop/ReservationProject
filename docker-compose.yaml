@@ -2,24 +2,24 @@ version: '3.8'
 
 services:
   server:
-    image: kimjiseop/capstone-design-server
+    image: kimjiseop/reservation-server
     container_name: server
     env_file: .env
     ports:
       - 8082:8082
-    restart: on-failure
+    #restart: on-failure
     environment:
       TZ: "Asia/Seoul" # timezone 설정
     depends_on:
       - redis
-      - es01
+#      - es01
     logging:
       options:
         max-size: "200m"
         max-file: "10"
 
   nginx:
-    image: kimjiseop/capstone-design-nginx
+    image: kimjiseop/reservation-nginx
     container_name: nginx-container
     ports:
       - "80:80"
@@ -35,7 +35,7 @@ services:
   redis:
     image: redis:latest
     container_name: redis
-    restart: on-failure
+    #restart: on-failure
     hostname: redis
     ports:
       - 6379:6379
@@ -46,11 +46,25 @@ services:
         max-size: "100m"
         max-file: "5"
 
-  es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
-    container_name: es01
-    environment:
-      - discovery.type=single-node
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+#  es01:
+#    image: kimjiseop/elasticsearch-nori
+#    container_name: es01
+#    environment:
+#      - discovery.type=single-node
+#      - network.host=0.0.0.0
+#      - xpack.security.enabled=false
+#      - ELASTIC_PASSWORD=elastic
+#      - xpack.security.http.ssl.enabled=false
+#      - xpack.security.transport.ssl.enabled=false
+#    ports:
+#      - 9200:9200
+#    volumes:
+#      - esdata:/usr/share/elasticsearch/data
+#    healthcheck:
+#      test: ["CMD-SHELL", "curl -fsSL http://localhost:9200/_cat/plugins | grep -q analysis-nori"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+volumes:
+  redis-data:
+#  esdata:
